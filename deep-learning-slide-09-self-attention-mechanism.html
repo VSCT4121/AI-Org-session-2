@@ -250,19 +250,22 @@
     .heatmap-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 4px;
+        grid-template-rows: repeat(5, 1fr);
+        gap: 3px;
         margin-top: 4px;
-        padding: 6px;
+        padding: 4px;
+        height: 96px;
         background-color: rgba(15, 23, 42, 0.55);
         border: 1px solid rgba(255,255,255,0.08);
         border-radius: 8px;
     }
 
     .heatmap-cell {
-        height: 24px;
+        height: auto;
         background-color: #334155;
         border-radius: 3px;
         border: 1px solid rgba(255,255,255,0.08);
+        min-height: 0;
     }
 
     .score-bar-container {
