@@ -189,7 +189,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            padding: 16px;
+            padding: 14px;
         }
 
         .diagram-container {
@@ -198,15 +198,16 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            gap: 10px;
+            gap: 8px;
             position: relative;
             padding-top: 0;
+            min-height: 0;
         }
 
         /* Architecture Blocks */
         .arch-block {
             width: 260px;
-            padding: 10px;
+            padding: 9px;
             background: rgba(30, 41, 59, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
@@ -226,13 +227,13 @@
         .arch-title {
             font-family: 'Montserrat', sans-serif;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: white;
             margin: 0;
         }
 
         .arch-subtitle {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #94a3b8;
             margin: 2px 0 0 0;
         }
@@ -243,7 +244,7 @@
         .block-attention { 
             border-left: 4px solid #a855f7; 
             background: linear-gradient(90deg, rgba(168, 85, 247, 0.1), rgba(30, 41, 59, 0.9));
-            padding: 14px;
+            padding: 12px;
         }
         .block-ffn { border-left: 4px solid #f472b6; }
         .block-output { border-left: 4px solid #fbbf24; }
@@ -251,7 +252,7 @@
         /* Flow Arrows */
         .flow-arrow {
             color: rgba(255, 255, 255, 0.3);
-            font-size: 1.2rem;
+            font-size: 1rem;
             animation: pulse-arrow 2s infinite;
         }
 
@@ -293,24 +294,25 @@
 
         /* Examples Footer in Diagram */
         .examples-row {
-            margin-top: 12px;
+            margin-top: 8px;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
             border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 10px;
+            padding-top: 8px;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
         .model-chip {
             background-color: rgba(168, 85, 247, 0.1);
             border: 1px solid rgba(168, 85, 247, 0.3);
             color: #d8b4fe;
-            padding: 5px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 600;
             display: flex;
             align-items: center;
