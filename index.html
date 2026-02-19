@@ -180,7 +180,7 @@
   <div id="app">
     <div id="stage">
       <div id="stageScaler">
-        <iframe id="slideFrame" title="Slide"></iframe>
+        <iframe id="slideFrame" title="Slide" tabindex="0"></iframe>
       </div>
     </div>
   </div>
@@ -297,7 +297,7 @@
     fullBtn.addEventListener('click', toggleFullscreen);
     openBtn.addEventListener('click', () => window.open(slides[current], '_blank'));
 
-    document.addEventListener('keydown', (e) => {
+    function handleNavigationKeydown(e) {
       const key = e.key;
       if (['ArrowRight', 'PageDown', ' '].includes(key)) {
         e.preventDefault();
@@ -317,7 +317,20 @@
         e.preventDefault();
         toggleFullscreen();
       }
-    });
+    }
+
+    function bindFrameKeyboardHandlers() {
+      try {
+        const frameDoc = frame.contentDocument || frame.contentWindow?.document;
+        if (!frameDoc) return;
+        frameDoc.addEventListener('keydown', handleNavigationKeydown, true);
+      } catch (_) {
+        // Ignore if frame is not accessible for any reason.
+      }
+    }
+
+    document.addEventListener('keydown', handleNavigationKeydown, true);
+    frame.addEventListener('load', bindFrameKeyboardHandlers);
 
     window.addEventListener('hashchange', () => {
       const next = parseInitialIndex();
