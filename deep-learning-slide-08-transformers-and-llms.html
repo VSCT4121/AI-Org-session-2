@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Transformers and LLMs</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background-color: #0f172a;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            box-sizing: border-box;
+        }
+
+        /* Subtle Grid Background */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        header {
+            z-index: 10;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+            padding-bottom: 12px; /* Adjusted for alignment */
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            color: white;
+            letter-spacing: -1px;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+
+        .header-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.1rem;
+            color: #d8b4fe;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 40px;
+            z-index: 5;
+            height: 100%;
+            padding-top: 10px;
+        }
+
+        /* Left Column: Timeline */
+        .timeline-section {
+            flex: 0 0 35%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #a855f7;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timeline-wrapper {
+            position: relative;
+            padding-left: 20px;
+            flex: 1;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 27px;
+            top: 10px;
+            bottom: 30px;
+            width: 2px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+            padding-left: 30px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #1e293b;
+            border: 2px solid #64748b;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+
+        .timeline-item.active .timeline-dot {
+            background-color: #a855f7;
+            border-color: #d8b4fe;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
+            transform: scale(1.2);
+        }
+
+        .timeline-content {
+            background-color: rgba(30, 41, 59, 0.5);
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .timeline-item:hover .timeline-content {
+            transform: translateX(5px);
+            background-color: rgba(30, 41, 59, 0.8);
+            border-color: rgba(168, 85, 247, 0.3);
+        }
+
+        .timeline-year {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #a855f7;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .timeline-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            margin: 0 0 4px 0;
+        }
+
+        .timeline-desc {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* Right Column: Architecture Diagram */
+        .architecture-section {
+            flex: 1;
+            background-color: rgba(15, 23, 42, 0.6);
+            border-radius: 20px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .diagram-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+            padding-top: 10px; /* Reduced from 30px to accommodate title */
+        }
+
+        /* Architecture Blocks */
+        .arch-block {
+            width: 280px;
+            padding: 12px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .arch-block:hover {
+            transform: scale(1.02);
+            border-color: #a855f7;
+            z-index: 10;
+        }
+
+        .arch-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            margin: 0;
+        }
+
+        .arch-subtitle {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin: 2px 0 0 0;
+        }
+
+        /* Specific Block Styles */
+        .block-input { border-left: 4px solid #60a5fa; }
+        .block-encode { border-left: 4px solid #34d399; }
+        .block-attention { 
+            border-left: 4px solid #a855f7; 
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.1), rgba(30, 41, 59, 0.9));
+            padding: 18px;
+        }
+        .block-ffn { border-left: 4px solid #f472b6; }
+        .block-output { border-left: 4px solid #fbbf24; }
+
+        /* Flow Arrows */
+        .flow-arrow {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.2rem;
+            animation: pulse-arrow 2s infinite;
+        }
+
+        @keyframes pulse-arrow {
+            0% { opacity: 0.3; transform: translateY(0); }
+            50% { opacity: 0.8; transform: translateY(3px); }
+            100% { opacity: 0.3; transform: translateY(0); }
+        }
+
+        /* Large Bracket for Stack */
+        .stack-bracket {
+            position: absolute;
+            right: -30px;
+            top: 20%;
+            bottom: 20%;
+            width: 20px;
+            border-right: 2px solid #a855f7;
+            border-top: 2px solid #a855f7;
+            border-bottom: 2px solid #a855f7;
+            border-radius: 0 10px 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stack-label {
+            position: absolute;
+            right: -130px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #a855f7;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* Examples Footer in Diagram */
+        .examples-row {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+        }
+
+        .model-chip {
+            background-color: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #d8b4fe;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .model-chip i { font-size: 0.7rem; }
+
+        /* Animation for Data Flow Particles */
+        .data-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #a855f7;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #a855f7;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        @keyframes flow-up {
+            0% { top: 90%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 10%; opacity: 0; }
+        }
+
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-grid"></div>
+<header>
+<div>
+<h1>Transformers &amp; LLMs</h1>
+<p class="header-subtitle">Evolution of Architecture and Modern Capabilities</p>
+</div>
+<div style="text-align: right;">
+<span style="background: rgba(168, 85, 247, 0.1); padding: 5px 12px; border-radius: 4px; color: #d8b4fe; font-size: 0.8rem; font-family: 'JetBrains Mono'; border: 1px solid rgba(168, 85, 247, 0.2);">
+                Architecture v1.0
+            </span>
+</div>
+</header>
+<div class="main-content">
+<!-- Left: Evolution Timeline -->
+<div class="timeline-section">
+<div class="section-title">
+<i class="fas fa-history"></i>
+<span>Evolution Path</span>
+</div>
+<div class="timeline-wrapper">
+<div class="timeline-line"></div>
+<!-- Item 1 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<span class="timeline-year">1980s-2000s</span>
+<h4 class="timeline-title">RNNs</h4>
+<p class="timeline-desc">Recurrent Neural Networks. Sequential processing, struggle with long-term dependencies.</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<span class="timeline-year">1997-2010s</span>
+<h4 class="timeline-title">LSTMs / GRUs</h4>
+<p class="timeline-desc">Long Short-Term Memory. Better memory gates, but still slow sequential training.</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="timeline-item">
+<div class="timeline-dot"></div>
+<div class="timeline-content">
+<span class="timeline-year">2014</span>
+<h4 class="timeline-title">Attention Mechanism</h4>
+<p class="timeline-desc">Bahdanau et al. allowed models to focus on relevant parts of input, still within RNNs.</p>
+</div>
+</div>
+<!-- Item 4 (Active) -->
+<div class="timeline-item active">
+<div class="timeline-dot"></div>
+<div class="timeline-content" style="background-color: rgba(168, 85, 247, 0.15); border-color: #a855f7;">
+<span class="timeline-year" style="color: white;">2017</span>
+<h4 class="timeline-title">The Transformer</h4>
+<p class="timeline-desc" style="color: #e2e8f0;">"Attention Is All You Need". Pure attention, parallel processing, foundation of all LLMs.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Architecture Diagram -->
+<div class="architecture-section">
+<!-- Added Section Title as requested -->
+<div class="section-title" style="margin-bottom: 10px; z-index: 30; position: relative;">
+<i class="fas fa-brain"></i>
+<span>Transformer Architecture</span>
+</div>
+<!-- Particle Container -->
+<div id="particle-container" style="position: absolute; inset: 0; pointer-events: none;"></div>
+<div class="diagram-container">
+<!-- Output -->
+<div class="arch-block block-output">
+<h4 class="arch-title">Output Probabilities</h4>
+<p class="arch-subtitle">Softmax Linear Layer</p>
+</div>
+<i class="fas fa-arrow-up flow-arrow"></i>
+<!-- Stack Wrapper -->
+<div style="position: relative; padding: 10px;">
+<div style="border: 1px dashed rgba(255,255,255,0.2); padding: 15px; border-radius: 12px; background: rgba(0,0,0,0.2);">
+<!-- Feed Forward -->
+<div class="arch-block block-ffn">
+<h4 class="arch-title">Feed-Forward Network</h4>
+<p class="arch-subtitle">Dense Layers + ReLU</p>
+</div>
+<div style="text-align: center; margin: 8px 0;"><i class="fas fa-arrow-up flow-arrow" style="font-size: 0.8rem;"></i></div>
+<!-- Self Attention -->
+<div class="arch-block block-attention">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+<div>
+<h4 class="arch-title">Multi-Head Self-Attention</h4>
+<p class="arch-subtitle">Parallel Context Understanding</p>
+</div>
+<i class="fas fa-brain" style="color: #a855f7; font-size: 1.5rem; opacity: 0.8;"></i>
+</div>
+</div>
+</div>
+<!-- Stack Label -->
+<div class="stack-bracket">
+<div class="stack-label">Nx Layers (e.g. 96)</div>
+</div>
+</div>
+<i class="fas fa-arrow-up flow-arrow"></i>
+<!-- Positional Encoding -->
+<div class="arch-block block-encode">
+<h4 class="arch-title">Positional Encoding</h4>
+<p class="arch-subtitle">Adds Order Information</p>
+</div>
+<i class="fas fa-plus" style="color: rgba(255,255,255,0.3); font-size: 0.8rem;"></i>
+<!-- Input Embedding -->
+<div class="arch-block block-input">
+<h4 class="arch-title">Input Embeddings</h4>
+<p class="arch-subtitle">Token Vectorization</p>
+</div>
+</div>
+<!-- Models Footer -->
+<div class="examples-row">
+<div class="model-chip"><i class="fas fa-robot"></i> GPT-4</div>
+<div class="model-chip"><i class="fas fa-cube"></i> BERT</div>
+<div class="model-chip"><i class="fas fa-font"></i> T5</div>
+<div class="model-chip"><i class="fas fa-bolt"></i> Llama</div>
+</div>
+</div>
+</div>
+<div style="position: absolute; bottom: 20px; right: 40px; color: #475569; font-size: 0.9rem;">
+<p>08</p>
+</div>
+</div>
+<script>
+        // Simple Particle Animation Script
+        const container = document.getElementById('particle-container');
+        
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('data-particle');
+            
+            // Randomize horizontal position slightly around center
+            const center = container.offsetWidth / 2;
+            const offset = (Math.random() - 0.5) * 100;
+            particle.style.left = (center + offset) + 'px';
+            
+            // Set animation
+            particle.style.animation = `flow-up ${2 + Math.random()}s linear forwards`;
+            
+            container.appendChild(particle);
+            
+            // Cleanup
+            setTimeout(() => {
+                particle.remove();
+            }, 3000);
+        }
+
+        // Spawn particles
+        setInterval(createParticle, 400);
+        
+        // Initial batch
+        for(let i=0; i<5; i++) setTimeout(createParticle, i*300);
+    </script>
+</body>
+</html>

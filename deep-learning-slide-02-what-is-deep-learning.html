@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>What is Deep Learning?</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #0f172a; /* Slate 900 */
+        }
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            background-color: #0f172a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            box-sizing: border-box;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.03)"/></svg>');
+        }
+        
+        /* Header Styling */
+        header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            /* Simulating gradient text with solid fallback for export safety,
+               but using a high-contrast color if gradient fails is better.
+               Here we use a solid color since gradients are discouraged in CSS rules for export. */
+            color: #60a5fa; /* Blue-400 */
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .definition-box {
+            background-color: rgba(30, 41, 59, 0.7);
+            border-left: 5px solid #3b82f6;
+            padding: 20px 30px;
+            border-radius: 0 10px 10px 0;
+            max-width: 900px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .definition-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        /* Quadrant Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 25px;
+            flex: 1;
+            height: 100%;
+        }
+
+        .card {
+            background-color: #1e293b; /* Slate 800 */
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Card Colors & Glows (Simulated with Box Shadow/Border) */
+        .card-blue { border-bottom: 4px solid #3b82f6; }
+        .card-purple { border-bottom: 4px solid #a855f7; }
+        .card-teal { border-bottom: 4px solid #14b8a6; }
+        .card-rose { border-bottom: 4px solid #f43f5e; }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            margin-right: 25px;
+            flex-shrink: 0;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .card-blue .icon-circle { color: #60a5fa; background-color: rgba(59, 130, 246, 0.15); }
+        .card-purple .icon-circle { color: #c084fc; background-color: rgba(168, 85, 247, 0.15); }
+        .card-teal .icon-circle { color: #2dd4bf; background-color: rgba(20, 184, 166, 0.15); }
+        .card-rose .icon-circle { color: #fb7185; background-color: rgba(244, 63, 94, 0.15); }
+
+        .card-content {
+            flex: 1;
+        }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            color: #f8fafc;
+        }
+
+        .card-stat {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .card-blue .card-stat { color: #93c5fd; }
+        .card-purple .card-stat { color: #d8b4fe; }
+        .card-teal .card-stat { color: #5eead4; }
+        .card-rose .card-stat { color: #fda4af; }
+
+        .card-desc {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        /* Background Shapes */
+        .bg-shape {
+            position: absolute;
+            z-index: 0;
+            filter: blur(80px);
+            opacity: 0.2;
+        }
+        .shape-1 { top: -100px; right: -100px; width: 500px; height: 500px; background-color: #3b82f6; border-radius: 50%; }
+        .shape-2 { bottom: -100px; left: -100px; width: 400px; height: 400px; background-color: #a855f7; border-radius: 50%; }
+
+    </style>
+</head>
+<body>
+<div class="slide-container">
+<!-- Ambient Background -->
+<div class="bg-shape shape-1"></div>
+<div class="bg-shape shape-2"></div>
+<header>
+<h1>What is Deep Learning?</h1>
+</header>
+<div class="definition-box">
+<p class="definition-text">
+                Deep Learning is a specialized subset of machine learning that uses <strong>multi-layered neural networks</strong> to automatically learn hierarchical patterns and complex features directly from raw data, mimicking the human brain's structure.
+            </p>
+</div>
+<div class="grid-container">
+<!-- Card 1: Multiple Layers -->
+<div class="card card-blue">
+<div class="icon-circle">
+<i class="fas fa-layer-group"></i>
+</div>
+<div class="card-content">
+<h3 class="card-title">Multiple Layers</h3>
+<p class="card-stat">Depth: 10s to 100s of layers</p>
+<p class="card-desc">Unlike traditional shallow networks, deep models process information through many successive layers of representation.</p>
+</div>
+</div>
+<!-- Card 2: Large Scale -->
+<div class="card card-purple">
+<div class="icon-circle">
+<i class="fas fa-project-diagram"></i>
+</div>
+<div class="card-content">
+<h3 class="card-title">Large Scale</h3>
+<p class="card-stat">Parameters: Millions to Billions</p>
+<p class="card-desc">Massive architecture sizes allow models to capture intricate nuances and vast amounts of knowledge.</p>
+</div>
+</div>
+<!-- Card 3: Automatic Features -->
+<div class="card card-teal">
+<div class="icon-circle">
+<i class="fas fa-magic"></i>
+</div>
+<div class="card-content">
+<h3 class="card-title">Automatic Features</h3>
+<p class="card-stat">No Manual Engineering</p>
+<p class="card-desc">The network learns to identify relevant features (edges, shapes, concepts) automatically during training.</p>
+</div>
+</div>
+<!-- Card 4: Data Hungry -->
+<div class="card card-rose">
+<div class="icon-circle">
+<i class="fas fa-database"></i>
+</div>
+<div class="card-content">
+<h3 class="card-title">Data Hungry</h3>
+<p class="card-stat">Requires Massive Datasets</p>
+<p class="card-desc">Performance scales logarithmically with data volume; thrives on big data where traditional algorithms plateau.</p>
+</div>
+</div>
+</div>
+<!-- Footer / Page Number -->
+<div style="position: absolute; bottom: 20px; right: 40px; color: #475569; font-size: 0.9rem;">
+<p>02</p>
+</div>
+</div>
+</body>
+</html>

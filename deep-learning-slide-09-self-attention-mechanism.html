@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Self-Attention Mechanism</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #0f172a;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+    }
+
+    .slide-container {
+        width: 1280px;
+        height: 720px;
+        position: relative;
+        background-color: #0f172a;
+        display: flex;
+        flex-direction: column;
+        padding: 40px 60px;
+        box-sizing: border-box;
+    }
+
+    /* Background Pattern */
+    .bg-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h40v40H0z" fill="none"/><path d="M0 39h40M39 0v40" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></svg>');
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    header {
+        z-index: 10;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 15px;
+    }
+
+    h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 5px 0;
+        color: white;
+        letter-spacing: -1px;
+    }
+
+    .subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 400;
+    }
+
+    /* Main Layout */
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        z-index: 10;
+        gap: 20px;
+    }
+
+    /* Sentence Container */
+    .sentence-wrapper {
+        position: relative;
+        padding: 40px 20px 60px 20px;
+        background-color: rgba(30, 41, 59, 0.5);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .tokens-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        position: relative;
+        z-index: 20;
+    }
+
+    .token {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.1rem;
+        background-color: #1e293b;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(255,255,255,0.1);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .token:hover {
+        background-color: #334155;
+        transform: translateY(-2px);
+    }
+
+    .token.active-source {
+        background-color: #3b82f6; /* Blue for Query */
+        color: white;
+        border-color: #60a5fa;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+
+    .token.active-target {
+        /* Color set dynamically via JS usually, but defaults here */
+        transition: background-color 0.3s;
+    }
+
+    .token-tooltip {
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #0f172a;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.2s;
+        pointer-events: none;
+        border: 1px solid rgba(255,255,255,0.2);
+        z-index: 30;
+    }
+
+    .token:hover .token-tooltip {
+        opacity: 1;
+    }
+
+    /* Canvas for Arcs */
+    #attention-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* QKV Concepts Section */
+    .qkv-section {
+        display: flex;
+        gap: 20px;
+        height: 280px;
+    }
+
+    .qkv-card {
+        flex: 1;
+        background-color: #1e293b;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1rem;
+        margin-right: 12px;
+        color: white;
+    }
+
+    .card-title {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: white;
+    }
+
+    .card-body {
+        flex: 1;
+        font-size: 0.9rem;
+        color: #cbd5e1;
+        line-height: 1.5;
+    }
+
+    .vector-display {
+        background-color: #0f172a;
+        padding: 10px;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 10px;
+        border-left: 3px solid;
+    }
+
+    /* Specific QKV Styles */
+    /* Query - Blue */
+    .card-q .card-icon { background-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+    .card-q .card-title { color: #60a5fa; }
+    .card-q .vector-display { border-color: #3b82f6; }
+    
+    /* Key - Teal/Green */
+    .card-k .card-icon { background-color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+    .card-k .card-title { color: #34d399; }
+    .card-k .vector-display { border-color: #10b981; }
+
+    /* Value - Purple */
+    .card-v .card-icon { background-color: #a855f7; box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
+    .card-v .card-title { color: #c084fc; }
+    .card-v .vector-display { border-color: #a855f7; }
+
+    /* Score Panel (Right Side) */
+    .score-panel {
+        width: 280px;
+        background-color: #1e293b;
+        border-radius: 12px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+        margin-top: 10px;
+    }
+
+    .heatmap-cell {
+        aspect-ratio: 1;
+        background-color: #334155;
+        border-radius: 2px;
+    }
+
+    .score-bar-container {
+        margin-top: 20px;
+    }
+
+    .score-item {
+        margin-bottom: 12px;
+    }
+
+    .score-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .progress-bg {
+        height: 6px;
+        background-color: #334155;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #f59e0b;
+        width: 0%;
+        transition: width 0.5s ease;
+    }
+
+    .highlight-text {
+        color: #f59e0b;
+        font-weight: 700;
+    }
+
+</style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-grid"></div>
+<header>
+<h1>Self-Attention Mechanism</h1>
+<p class="subtitle">How models understand context: The Relationship between Queries, Keys, and Values</p>
+</header>
+<div class="main-content">
+<!-- Visualization Area -->
+<div class="sentence-wrapper" id="visual-container">
+<canvas id="attention-canvas"></canvas>
+<div class="tokens-container" id="sentence-tokens">
+<!-- Tokens injected via JS -->
+</div>
+<div style="position: absolute; bottom: 15px; left: 0; width: 100%; text-align: center; color: #64748b; font-size: 0.8rem;">
+<p><i class="fas fa-mouse-pointer"></i> Hover over "it" to see attention scores</p>
+</div>
+</div>
+<!-- QKV Explanation Cards -->
+<div class="qkv-section">
+<!-- Query Card -->
+<div class="qkv-card card-q">
+<div class="card-header">
+<div class="card-icon">Q</div>
+<h3 class="card-title">Query</h3>
+</div>
+<div class="card-body">
+<p><strong>"What am I looking for?"</strong></p>
+<p style="margin-top:10px;">The current word ("it") sends out a query to find relevant context from other words.</p>
+</div>
+<div class="vector-display" id="q-vector">
+                Vector_Q = [0.2, -0.5, 0.8, ...]
+            </div>
+</div>
+<!-- Key Card -->
+<div class="qkv-card card-k">
+<div class="card-header">
+<div class="card-icon">K</div>
+<h3 class="card-title">Key</h3>
+</div>
+<div class="card-body">
+<p><strong>"What do I identify as?"</strong></p>
+<p style="margin-top:10px;">Every other word offers a key. The model matches Query vs Key (Dot Product).</p>
+</div>
+<div class="vector-display" id="k-vector">
+                Vector_K = [0.1, 0.4, -0.2, ...]
+            </div>
+</div>
+<!-- Value Card -->
+<div class="qkv-card card-v">
+<div class="card-header">
+<div class="card-icon">V</div>
+<h3 class="card-title">Value</h3>
+</div>
+<div class="card-body">
+<p><strong>"What content do I provide?"</strong></p>
+<p style="margin-top:10px;">If the Key matches the Query, this Value is absorbed to update the meaning.</p>
+</div>
+<div class="vector-display" id="v-vector">
+                Vector_V = [0.9, 0.1, 0.0, ...]
+            </div>
+</div>
+<!-- Score Panel -->
+<div class="score-panel">
+<h3 class="card-title" style="font-size: 1rem; margin-bottom: 10px;">Attention Scores</h3>
+<div class="score-bar-container" id="score-bars">
+<!-- Dynamic Score Bars -->
+<div class="score-item">
+<div class="score-label"><span>it → animal</span> <span>0.87</span></div>
+<div class="progress-bg"><div class="progress-fill" style="width: 87%; background-color: #10b981;"></div></div>
+</div>
+<div class="score-item">
+<div class="score-label"><span>it → street</span> <span>0.13</span></div>
+<div class="progress-bg"><div class="progress-fill" style="width: 13%; background-color: #64748b;"></div></div>
+</div>
+<div class="score-item">
+<div class="score-label"><span>it → tired</span> <span>0.45</span></div>
+<div class="progress-bg"><div class="progress-fill" style="width: 45%; background-color: #f59e0b;"></div></div>
+</div>
+</div>
+<div style="margin-top: auto;">
+<p style="font-size: 0.75rem; color: #64748b; margin-bottom: 5px;">Head Matrix (Simplified)</p>
+<div class="heatmap-grid" id="mini-heatmap">
+<!-- Generated by JS -->
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div style="position: absolute; bottom: 20px; right: 40px; color: #475569; font-size: 0.9rem;">
+<p>09</p>
+</div>
+</div>
+<script>
+        const sentence = "The animal didn't cross the street because it was too tired".split(" ");
+        const tokensContainer = document.getElementById('sentence-tokens');
+        const canvas = document.getElementById('attention-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('visual-container');
+        
+        // Configuration for "it" (index 7 in split array)
+        const focusIndex = 7; // "it"
+        
+        // Mock Attention Weights for "it"
+        const attentionWeights = {
+            1: 0.87, // animal
+            5: 0.13, // street
+            9: 0.45, // tired
+            0: 0.01, 2: 0.01, 3: 0.02, 4: 0.01, 6: 0.05, 8: 0.05, 10: 0.05
+        };
+
+        let tokenElements = [];
+
+        // Initialize Tokens
+        sentence.forEach((word, index) => {
+            const span = document.createElement('span');
+            span.className = 'token';
+            span.textContent = word;
+            span.dataset.index = index;
+            
+            // Tooltip for QKV role hint
+            const tip = document.createElement('div');
+            tip.className = 'token-tooltip';
+            if (index === focusIndex) tip.textContent = "Query Source";
+            else tip.textContent = "Key Candidate";
+            span.appendChild(tip);
+
+            span.addEventListener('mouseenter', () => handleHover(index));
+            span.addEventListener('mouseleave', () => clearVisualization());
+            
+            tokensContainer.appendChild(span);
+            tokenElements.push(span);
+        });
+
+        // Setup Canvas
+        function resize() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Mini Heatmap Generation
+        const heatmap = document.getElementById('mini-heatmap');
+        for(let i=0; i<25; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-cell';
+            cell.style.opacity = Math.random() * 0.5 + 0.1;
+            if(i === 12) cell.style.backgroundColor = '#10b981'; // center highlight
+            heatmap.appendChild(cell);
+        }
+
+        // Interaction Logic
+        function handleHover(idx) {
+            // Only interactive for "it" to match the specific teaching example
+            // But we can allow others with dummy data for feel
+            
+            clearVisualization();
+            const activeToken = tokenElements[idx];
+            activeToken.classList.add('active-source');
+
+            // Set Q Vector Text
+            document.getElementById('q-vector').innerHTML = `Vector_Q("${sentence[idx]}") = [${Math.random().toFixed(2)}, ${Math.random().toFixed(2)}, ...]`;
+
+            // Draw Lines
+            tokenElements.forEach((target, targetIdx) => {
+                if (idx === targetIdx) return;
+
+                let weight = 0;
+                
+                // If hovering "it", use specific teaching weights
+                if (idx === focusIndex) {
+                    weight = attentionWeights[targetIdx] || 0.01;
+                } else {
+                    // Random dummy weights for other words just for visual feedback
+                    weight = Math.random() * 0.3;
+                    if (Math.abs(idx - targetIdx) < 3) weight += 0.3; // Local context bias
+                }
+
+                if (weight > 0.05) {
+                    drawConnection(activeToken, target, weight);
+                    
+                    // Highlight target based on weight
+                    target.style.backgroundColor = `rgba(16, 185, 129, ${weight * 0.8})`; // Green tint
+                    target.style.borderColor = `rgba(16, 185, 129, ${weight})`;
+                    
+                    if (weight > 0.5) target.style.color = 'white';
+                }
+            });
+
+            // Update Side Panel if "it"
+            if (idx === focusIndex) {
+                updateSidePanel(true);
+            } else {
+                updateSidePanel(false);
+            }
+        }
+
+        function clearVisualization() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            tokenElements.forEach(el => {
+                el.className = 'token';
+                el.style.backgroundColor = '';
+                el.style.borderColor = '';
+                el.style.color = '';
+            });
+        }
+
+        function drawConnection(sourceEl, targetEl, weight) {
+            const containerRect = container.getBoundingClientRect();
+            const sourceRect = sourceEl.getBoundingClientRect();
+            const targetRect = targetEl.getBoundingClientRect();
+
+            const sx = sourceRect.left + sourceRect.width / 2 - containerRect.left;
+            const sy = sourceRect.top - containerRect.top;
+            const tx = targetRect.left + targetRect.width / 2 - containerRect.left;
+            const ty = targetRect.top - containerRect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(sx, sy);
+            
+            // Bezier Control Points
+            // Higher arc for further distance
+            const dist = Math.abs(sx - tx);
+            const arcHeight = 30 + dist * 0.15;
+            
+            ctx.bezierCurveTo(sx, sy - arcHeight, tx, ty - arcHeight, tx, ty);
+
+            // Style based on weight
+            ctx.strokeStyle = weight > 0.5 ? '#10b981' : (weight > 0.2 ? '#f59e0b' : '#64748b');
+            ctx.lineWidth = 1 + weight * 6;
+            ctx.lineCap = 'round';
+            ctx.globalAlpha = 0.4 + weight * 0.6;
+            
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        }
+
+        function updateSidePanel(isFocus) {
+            // If "it" is selected, show the specific data
+            const bars = document.getElementById('score-bars');
+            if (isFocus) {
+                bars.style.opacity = '1';
+                document.getElementById('k-vector').innerHTML = `Vector_K("animal") = [0.89, 0.12, ...] (Match!)`;
+                document.getElementById('v-vector').innerHTML = `Vector_V("animal") = [Meaning: Living, beast]`;
+            } else {
+                bars.style.opacity = '0.3';
+                document.getElementById('k-vector').innerHTML = `Vector_K = [...]`;
+                document.getElementById('v-vector').innerHTML = `Vector_V = [...]`;
+            }
+        }
+
+        // Trigger initial animation for "it"
+        setTimeout(() => handleHover(focusIndex), 1000);
+
+    </script>
+</body>
+</html>

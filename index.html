@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Learning Deck Player</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: rgba(15, 23, 42, 0.85);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #60a5fa;
+      --border: rgba(148, 163, 184, 0.25);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #slideFrame {
+      flex: 1;
+      width: 100%;
+      border: 0;
+      background: #0f172a;
+    }
+
+    #controls {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 10px;
+      backdrop-filter: blur(8px);
+      z-index: 30;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: rgba(30, 41, 59, 0.8);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn:hover { border-color: var(--accent); }
+
+    #counter {
+      min-width: 88px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 0 8px;
+    }
+
+    #help {
+      position: fixed;
+      top: 14px;
+      right: 14px;
+      z-index: 30;
+      color: var(--muted);
+      font-size: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      backdrop-filter: blur(8px);
+    }
+
+    #startOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(2, 6, 23, 0.86);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    #startOverlay.show {
+      display: flex;
+    }
+
+    .start-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 22px;
+      max-width: 520px;
+    }
+
+    .start-title {
+      margin: 0 0 6px;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .start-sub {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    body.present-mode #controls,
+    body.present-mode #help {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    body.present-mode:hover #controls,
+    body.present-mode:hover #help {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .hidden-in-fullscreen {
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    :fullscreen .hidden-in-fullscreen,
+    :-webkit-full-screen .hidden-in-fullscreen {
+      opacity: 0.12;
+    }
+
+    :fullscreen .hidden-in-fullscreen:hover,
+    :-webkit-full-screen .hidden-in-fullscreen:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <iframe id="slideFrame" title="Slide"></iframe>
+  </div>
+
+  <div id="controls" class="hidden-in-fullscreen">
+    <button class="btn" id="prevBtn">◀ Prev</button>
+    <div id="counter">1 / 11</div>
+    <button class="btn" id="nextBtn">Next ▶</button>
+    <button class="btn" id="fullBtn">⛶ Fullscreen</button>
+    <button class="btn" id="openBtn">Open Slide</button>
+  </div>
+
+  <div id="help" class="hidden-in-fullscreen">
+    Keys: ← →, Space, PgUp/PgDn, Home/End, F
+  </div>
+
+  <div id="startOverlay">
+    <div class="start-card">
+      <p class="start-title">Start Presentation</p>
+      <p class="start-sub">Click once to enter fullscreen and begin slide show mode.</p>
+      <button class="btn" id="startBtn">Start Fullscreen</button>
+    </div>
+  </div>
+
+  <script>
+    const slides = [
+      'deep-learning-title-slide.html',
+      'deep-learning-slide-02-what-is-deep-learning.html',
+      'deep-learning-slide-03-neural-network-architecture.html',
+      'deep-learning-slide-04-deep-learning-applications.html',
+      'deep-learning-slide-05-natural-language-processing-overview.html',
+      'deep-learning-slide-06-nlp-processing-pipeline.html',
+      'deep-learning-slide-07-core-nlp-tasks.html',
+      'deep-learning-slide-08-transformers-and-llms.html',
+      'deep-learning-slide-09-self-attention-mechanism.html',
+      'deep-learning-slide-10-generative-ai-multimodal-showcase.html',
+      'deep-learning-slide-11-thank-you-and-questions.html'
+    ];
+
+    const frame = document.getElementById('slideFrame');
+    const counter = document.getElementById('counter');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const fullBtn = document.getElementById('fullBtn');
+    const openBtn = document.getElementById('openBtn');
+    const startOverlay = document.getElementById('startOverlay');
+    const startBtn = document.getElementById('startBtn');
+
+    const params = new URLSearchParams(window.location.search);
+    const isPresentMode = params.get('mode') === 'present';
+    const autoStart = params.get('autostart') === '1';
+
+    if (isPresentMode) {
+      document.body.classList.add('present-mode');
+    }
+
+    function parseInitialIndex() {
+      const hash = window.location.hash.replace('#', '');
+      const n = Number(hash);
+      if (!Number.isNaN(n) && n >= 1 && n <= slides.length) return n - 1;
+      return 0;
+    }
+
+    let current = parseInitialIndex();
+
+    function render() {
+      frame.src = slides[current];
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      window.location.hash = `${current + 1}`;
+      document.title = `Slide ${current + 1} - Deep Learning Deck`;
+    }
+
+    function nextSlide() {
+      if (current < slides.length - 1) {
+        current += 1;
+        render();
+      }
+    }
+
+    function prevSlide() {
+      if (current > 0) {
+        current -= 1;
+        render();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.();
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    fullBtn.addEventListener('click', toggleFullscreen);
+    openBtn.addEventListener('click', () => window.open(slides[current], '_blank'));
+
+    document.addEventListener('keydown', (e) => {
+      const key = e.key;
+      if (['ArrowRight', 'PageDown', ' '].includes(key)) {
+        e.preventDefault();
+        nextSlide();
+      } else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(key)) {
+        e.preventDefault();
+        prevSlide();
+      } else if (key === 'Home') {
+        e.preventDefault();
+        current = 0;
+        render();
+      } else if (key === 'End') {
+        e.preventDefault();
+        current = slides.length - 1;
+        render();
+      } else if (key.toLowerCase() === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    });
+
+    window.addEventListener('hashchange', () => {
+      const next = parseInitialIndex();
+      if (next !== current) {
+        current = next;
+        render();
+      }
+    });
+
+    startBtn.addEventListener('click', async () => {
+      try {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen?.();
+        }
+      } finally {
+        startOverlay.classList.remove('show');
+      }
+    });
+
+    render();
+
+    if (isPresentMode && autoStart) {
+      startOverlay.classList.add('show');
+    }
+  </script>
+</body>
+</html>
