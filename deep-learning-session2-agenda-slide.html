@@ -24,8 +24,7 @@
         background-color: #0f172a;
         display: flex;
         flex-direction: column;
-        /* 32px top, 56px sides, 80px bottom — reserves space for absolute footer */
-        padding: 32px 56px 80px;
+        padding: 32px 56px;
         box-sizing: border-box;
         background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M1 1h2v2H1V1zm29 29h2v2h-2v-2z" fill="rgba(255,255,255,0.03)"/></svg>');
     }
@@ -226,37 +225,6 @@
     .card-5 { border-top: 4px solid #f59e0b; animation-delay: 1.0s; }
     .card-5 .icon-wrapper { color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.1); }
 
-    /* Footer — matches deck style exactly */
-    .footer {
-        position: absolute;
-        bottom: 30px;
-        left: 60px;
-        right: 60px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 15px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        z-index: 20;
-    }
-
-    .footer-brand {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #64748b;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-
-    .footer-meta {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.9rem;
-        color: #64748b;
-        display: flex;
-        gap: 20px;
-    }
-
     /* Animations */
     @keyframes fadeIn {
         to { opacity: 1; }
@@ -333,15 +301,7 @@
         </div>
 
     </div>
-
-    <!-- Footer — deck style: border-top + brand + date | slide number -->
-    <div class="footer">
-        <div class="footer-brand">Presentation by Cognine AI Practice</div>
-        <div class="footer-meta">
-            <span>24-Feb-2026</span>
-            <span>|</span>
-            <span>02</span>
-        </div>
+        
     </div>
 
 </div>
