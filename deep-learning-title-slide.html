@@ -154,30 +154,32 @@
         /* Footer */
         .footer {
             position: absolute;
-            bottom: 40px;
-            width: 100%;
-            text-align: center;
-            z-index: 10;
-            color: #64748b;
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            opacity: 0;
-            animation: fadeIn 1s ease-out forwards 2s;
+            bottom: 30px;
+            left: 60px;
+            right: 60px;
             display: flex;
             justify-content: space-between;
-            padding: 0 60px;
-            box-sizing: border-box;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 20;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards 2s;
         }
 
-        .footer-line {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            position: absolute;
-            top: -20px;
-            left: 0;
-            width: 100%;
+        .footer-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .footer-meta {
+            font-family: 'Montserrat', monospace;
+            font-size: 0.9rem;
+            color: #64748b;
         }
 
         /* Animations */
@@ -235,9 +237,8 @@
 </div>
 <!-- Footer -->
 <div class="footer">
-<div class="footer-line"></div>
-<p>Presentation By Cognine AI Practice</p>
-<p>24-Feb-2026</p>
+<div class="footer-brand">Presentation by Cognine AI Practice</div>
+<div class="footer-meta">24-Feb-2026</div>
 </div>
 </div>
 <script>
