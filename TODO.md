@@ -1,7 +1,7 @@
-# Task: Create New Section Slide for Transformers & LLMs
+# Task: Create Generative AI Section Slide (similar to Slide 16)
 
 ## Steps
 
-- [x] Create `deep-learning-slide-transformers-section.html` — animated section cover slide (purple theme, particle canvas, similar to NLP section slide)
-- [x] Update `index.html` — insert new slide before `deep-learning-slide-08-transformers.html` in the slides array
-- [x] Verify slide renders correctly in browser
+- [x] Create `deep-learning-slide-genai-section.html` — Generative AI section cover slide (Orange/Amber theme, similar to Slide 16)
+- [x] Update `index.html` — Insert new slide before `deep-learning-slide-12-what-is-generative-ai.html`
+- [x] Verify the slide renders correctly in the browser
