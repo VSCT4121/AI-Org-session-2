@@ -1,10 +1,16 @@
-# Slide 09 - Self-Attention Mechanism Fixes
+# Slide 08 - Transformer Architecture Footer Fix
 
-## Issues to Fix
-- [x] Read and analyze `deep-learning-slide-09-self-attention-mechanism.html`
+## Task
+Replace the redundant "Innovations Footer" chips in `deep-learning-slide-08-transformers.html` with a "Built on This Architecture" models footer (Option C).
 
-## Completed Fixes
-- [x] Fix 1: Head Matrix heading now visible — heading color upgraded to `#94a3b8` + `font-weight:600`, separated with border-top divider, removed `margin-top:auto` push
-- [x] Fix 2: Matrix fully visible — heatmap cells changed from `aspect-ratio:1` to `height:16px`; grid gap reduced 3px→2px; label column 26px→20px; `.qkv-section` height 280px→310px
-- [x] Fix 3: Transition arc lines fixed — `sentence-wrapper` top padding 40px→75px + `overflow:visible`; arc height capped at 65px (`Math.min(30+dist*0.15, 65)`); arc opacity boosted to `0.55+weight*0.45`
-- [x] Fix 4: Attention score bars vibrant — bars 6px→9px tall; `it→street` color `#64748b`→`#3b82f6` (blue); all bars get `box-shadow` glow; score values colored to match bars; progress-bg darkened to `#1e3a5f`; arc stroke colors aligned to bar palette
+## Steps
+
+- [x] Analyze current footer content and design issues
+- [x] Plan replacement with real-world LLM model chips
+- [x] Get user approval for Option C
+- [x] Replace CSS: `.innovations-row`, `.innov-chip`, `.innov-icon`, `.innov-label` → new `.models-footer` styles
+- [x] Replace HTML: 5 redundant component chips → 5 LLM model chips (GPT-4, BERT, T5, Llama 3, Gemini)
+- [x] Add clear visible section title "Built on This Architecture"
+- [x] Add proper 2px purple top border + subtle background for clear boundary
+- [x] Fixed pre-existing broken `@keyframes flow-up-dummy` CSS rule
+- [x] All changes verified — no CSS errors
