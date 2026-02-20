@@ -313,7 +313,7 @@
 <!-- Tokens injected via JS -->
 </div>
 <div style="position: absolute; bottom: 15px; left: 0; width: 100%; text-align: center; color: #64748b; font-size: 0.8rem;">
-<p><i class="fas fa-mouse-pointer"></i> Click any word to see its attention scores — click again to deselect</p>
+<p><i class="fas fa-mouse-pointer"></i> Hover over any word to see its attention scores — click to lock selection</p>
 </div>
 </div>
 <!-- QKV Explanation Cards -->
@@ -434,6 +434,7 @@
 
         let tokenElements = [];
         let selectedIndex = -1;
+        let isLocked = false; // true when user has clicked to lock a token
 
         // Initialize Tokens
         sentence.forEach((word, index) => {
@@ -449,6 +450,22 @@
             else tip.textContent = "Key Candidate";
             span.appendChild(tip);
 
+            // Hover: show attention scores on mouseenter
+            span.addEventListener('mouseenter', () => {
+                if (!isLocked) {
+                    showAttention(index);
+                }
+            });
+
+            // Hover: reset to default (focusIndex) on mouseleave
+            span.addEventListener('mouseleave', () => {
+                if (!isLocked) {
+                    clearVisualization(false);
+                    showAttention(focusIndex);
+                }
+            });
+
+            // Click: lock/unlock selection
             span.addEventListener('click', () => handleClick(index));
             
             tokensContainer.appendChild(span);
@@ -549,17 +566,18 @@
             }
         }
 
-        // Interaction Logic
-        function handleClick(idx) {
-            // Toggle off if clicking the same token again
-            if (selectedIndex === idx) {
-                selectedIndex = -1;
-                clearVisualization(true);
-                return;
-            }
-
+        // ── Core: show attention for a given token index ──
+        function showAttention(idx) {
             selectedIndex = idx;
-            clearVisualization(false); // clear visuals but keep selectedIndex
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Reset all token styles first
+            tokenElements.forEach(el => {
+                el.className = 'token';
+                el.style.backgroundColor = '';
+                el.style.borderColor = '';
+                el.style.color = '';
+            });
 
             const activeToken = tokenElements[idx];
             activeToken.classList.add('active-source');
@@ -588,12 +606,29 @@
             // Update Side Panel with dynamic scores for this token
             updateSidePanel(idx, weights);
 
-            // Sync heatmap row highlight with clicked token
+            // Sync heatmap row highlight with hovered/clicked token
             updateHeatmapHighlight(idx);
         }
 
+        // ── Click: lock / unlock a token selection ──
+        function handleClick(idx) {
+            if (isLocked && selectedIndex === idx) {
+                // Unlock: clicking the same locked token deselects it
+                isLocked = false;
+                selectedIndex = -1;
+                clearVisualization(true);
+                return;
+            }
+            // Lock onto this token
+            isLocked = true;
+            showAttention(idx);
+        }
+
         function clearVisualization(resetSelected = true) {
-            if (resetSelected) selectedIndex = -1;
+            if (resetSelected) {
+                selectedIndex = -1;
+                isLocked = false;
+            }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             tokenElements.forEach(el => {
                 el.className = 'token';
@@ -679,8 +714,8 @@
                 `Vector_V("${sentence[topTi]}") = [${desc.v}]`;
         }
 
-        // Trigger initial selection of "it" to demonstrate the feature
-        setTimeout(() => handleClick(focusIndex), 1000);
+        // Trigger initial hover-style display of "it" to demonstrate the feature
+        setTimeout(() => showAttention(focusIndex), 1000);
 
     </script>
 </body>
