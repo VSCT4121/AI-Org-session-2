@@ -76,13 +76,13 @@
     /* Sentence Container */
     .sentence-wrapper {
         position: relative;
-        padding: 46px 20px 34px 20px;
+        padding: 50px 20px 20px 20px;
         background-color: rgba(30, 41, 59, 0.5);
         border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.05);
         display: flex;
         justify-content: center;
-        margin-top: 10px;
+        margin-top: 0px;
         overflow: visible;
     }
 
@@ -145,15 +145,15 @@
         opacity: 1;
     }
 
-    /* Canvas for Arcs */
+    /* Canvas for Arcs — extends 80px above the container so arcs never clip */
     #attention-canvas {
         position: absolute;
-        top: 0;
+        top: -80px;
         left: 0;
         width: 100%;
-        height: 100%;
         pointer-events: none;
         z-index: 10;
+        overflow: visible;
     }
 
     /* QKV Concepts Section */
@@ -472,10 +472,14 @@
             tokenElements.push(span);
         });
 
+        // Canvas extends 80px above the container to give arcs room to arc freely
+        const CANVAS_TOP_OFFSET = 80;
+
         // Setup Canvas
         function resize() {
             canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            canvas.height = container.clientHeight + CANVAS_TOP_OFFSET;
+            canvas.style.height = (container.clientHeight + CANVAS_TOP_OFFSET) + 'px';
         }
         window.addEventListener('resize', resize);
         resize();
@@ -645,15 +649,15 @@
             const targetRect = targetEl.getBoundingClientRect();
 
             const sx = sourceRect.left + sourceRect.width / 2 - containerRect.left;
-            const sy = sourceRect.top - containerRect.top;
+            // Offset y by CANVAS_TOP_OFFSET because canvas starts 80px above the container
+            const sy = sourceRect.top - containerRect.top + CANVAS_TOP_OFFSET;
             const tx = targetRect.left + targetRect.width / 2 - containerRect.left;
-            const ty = targetRect.top - containerRect.top;
+            const ty = targetRect.top - containerRect.top + CANVAS_TOP_OFFSET;
 
             ctx.beginPath();
             ctx.moveTo(sx, sy);
             
-            // Bezier Control Points
-            // Higher arc for further distance — capped so arcs stay within top padding (75px)
+            // Bezier Control Points — arc height scales with distance, capped at 65px
             const dist = Math.abs(sx - tx);
             const arcHeight = Math.min(30 + dist * 0.15, 65);
             
