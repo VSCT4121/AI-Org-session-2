@@ -245,9 +245,9 @@
 <p class="step-desc">Cleaning raw data: Tokenization, lowercasing, punctuation removal.</p>
 <div class="example-box">
 <p class="font-bold mb-1" style="color:#60a5fa">In:</p>
-<p>"Hello, World!"</p>
+<p>"The movies were Amazing!"</p>
 <p class="font-bold mt-2 mb-1" style="color:#60a5fa">Out:</p>
-<p>["hello", "world"]</p>
+<p>["the", "movies", "were", "amazing"]</p>
 </div>
 <i class="fas fa-chevron-right connector-arrow" id="arrow-1"></i>
 </div>
@@ -259,9 +259,9 @@
 <p class="step-desc">Standardizing words: Stemming, Lemmatization, Stopword removal.</p>
 <div class="example-box">
 <p class="font-bold mb-1" style="color:#818cf8">In:</p>
-<p>["running", "ran"]</p>
+<p>["the", "movies", "were", "amazing"]</p>
 <p class="font-bold mt-2 mb-1" style="color:#818cf8">Out:</p>
-<p>["run", "run"]</p>
+<p>["movie", "amazing"]</p>
 </div>
 <i class="fas fa-chevron-right connector-arrow" id="arrow-2"></i>
 </div>
@@ -273,9 +273,9 @@
 <p class="step-desc">Converting text to numbers: Bag of Words, TF-IDF, Embeddings.</p>
 <div class="example-box">
 <p class="font-bold mb-1" style="color:#c084fc">In:</p>
-<p>["AI", "cool"]</p>
+<p>["movie", "amazing"]</p>
 <p class="font-bold mt-2 mb-1" style="color:#c084fc">Out:</p>
-<p>[0.24, 0.91, ...]</p>
+<p>[0.12, 0.98, ...]</p>
 </div>
 <i class="fas fa-chevron-right connector-arrow" id="arrow-3"></i>
 </div>
@@ -289,7 +289,7 @@
 <p class="font-bold mb-1" style="color:#f472b6">Task:</p>
 <p>Sentiment</p>
 <p class="font-bold mt-2 mb-1" style="color:#f472b6">Result:</p>
-<p>Positive (0.98)</p>
+<p>Positive (0.97)</p>
 </div>
 <i class="fas fa-chevron-right connector-arrow" id="arrow-4"></i>
 </div>
@@ -301,7 +301,7 @@
 <p class="step-desc">Refining output: Formatting, ranking, aggregation.</p>
 <div class="example-box">
 <p class="font-bold mb-1" style="color:#2dd4bf">Raw:</p>
-<p>{cls: 1, p: 0.9}</p>
+<p>{cls: 1, p: 0.97}</p>
 <p class="font-bold mt-2 mb-1" style="color:#2dd4bf">Final:</p>
 <p>"Positive Review"</p>
 </div>
