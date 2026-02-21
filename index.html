@@ -97,19 +97,6 @@
       padding: 0 8px;
     }
 
-    #help {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 30;
-      color: var(--muted);
-      font-size: 12px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 8px 10px;
-      backdrop-filter: blur(8px);
-    }
 
     #startOverlay {
       position: fixed;
@@ -148,19 +135,16 @@
       font-size: 14px;
     }
 
-    body.present-mode #controls,
-    body.present-mode #help {
+    body.present-mode #controls {
       transition: opacity 0.2s ease;
     }
 
-    body.present-mode.controls-hidden #controls,
-    body.present-mode.controls-hidden #help {
+    body.present-mode.controls-hidden #controls {
       opacity: 0;
       pointer-events: none;
     }
 
-    body.present-mode:not(.controls-hidden) #controls,
-    body.present-mode:not(.controls-hidden) #help {
+    body.present-mode:not(.controls-hidden) #controls {
       opacity: 1;
       pointer-events: auto;
     }
@@ -196,10 +180,6 @@
     <button class="btn" id="nextBtn">Next ▶</button>
     <button class="btn" id="fullBtn">⛶ Fullscreen</button>
     <button class="btn" id="openBtn">Open Slide</button>
-  </div>
-
-  <div id="help" class="hidden-in-fullscreen">
-    Keys: ← →, Space, PgUp/PgDn, Home/End, F
   </div>
 
   <div id="startOverlay">
