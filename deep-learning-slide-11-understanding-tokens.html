@@ -359,10 +359,28 @@
         70%  { transform: scale(1.08) translateY(-2px); opacity: 1; }
         100% { transform: scale(1) translateY(0);    opacity: 1; }
     }
+
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
 </style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
     <div class="bg-pattern"></div>
     <div class="glow-orb glow-orb-1"></div>
     <div class="glow-orb glow-orb-2"></div>

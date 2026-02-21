@@ -419,10 +419,28 @@
     .theme-magenta:hover { border-color: #e879f9; box-shadow: 0 0 20px rgba(232, 121, 249, 0.2); }
     .theme-magenta .card-title { color: #f0abfc; }
     .theme-magenta .preview-popover { border-color: #e879f9; }
+
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
 </style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
     <div class="bg-pattern"></div>
     <!-- Ambient orbs -->
     <div class="bg-orb bg-orb-1"></div>

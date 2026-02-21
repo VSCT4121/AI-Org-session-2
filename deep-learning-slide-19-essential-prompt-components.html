@@ -200,10 +200,28 @@
         .delay-3 { animation-delay: 0.5s; }
         .delay-4 { animation-delay: 0.7s; }
 
-    </style>
+    
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
+</style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
 <div class="bg-pattern"></div>
 <header>
 <h1>Essential Prompt Components</h1>

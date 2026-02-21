@@ -179,10 +179,28 @@
             border: 1px solid rgba(255,255,255,0.1);
             white-space: nowrap;
         }
-    </style>
+    
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
+</style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
 <header>
 <h1>What is Prompt Engineering?</h1>
 <p class="subtitle">Designing inputs to guide AI toward optimal outputs</p>

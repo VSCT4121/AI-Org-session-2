@@ -171,10 +171,28 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-    </style>
+    
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
+</style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
 <header>
 <h1>Natural Language Processing</h1>
 <p class="subtitle">Bridging the gap between human communication and computational understanding</p>

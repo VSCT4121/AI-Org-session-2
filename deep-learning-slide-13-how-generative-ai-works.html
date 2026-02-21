@@ -381,10 +381,28 @@
     .delay-6 { animation-delay: 0.75s; }
     .delay-7 { animation-delay: 0.95s; }
     .delay-8 { animation-delay: 1.15s; }
+
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
 </style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
     <div class="bg-pattern"></div>
     <div class="glow-blob glow-blob-blue"></div>
     <div class="glow-blob glow-blob-teal"></div>

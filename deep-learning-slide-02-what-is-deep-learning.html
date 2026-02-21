@@ -161,10 +161,28 @@
         .shape-1 { top: -100px; right: -100px; width: 500px; height: 500px; background-color: #3b82f6; border-radius: 50%; }
         .shape-2 { bottom: -100px; left: -100px; width: 400px; height: 400px; background-color: #a855f7; border-radius: 50%; }
 
-    </style>
+    
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
+</style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
 <!-- Ambient Background -->
 <div class="bg-shape shape-1"></div>
 <div class="bg-shape shape-2"></div>

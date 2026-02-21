@@ -186,10 +186,28 @@
             50% { transform: translateY(-20px) scale(1.05); }
         }
 
-    </style>
+    
+        /* Company Logo Overlay */
+        .logo-overlay {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            z-index: 100;
+        }
+        .logo-overlay img {
+            height: 50px;
+            opacity: 0.95;
+            object-fit: contain;
+        }
+</style>
 </head>
 <body>
 <div class="slide-container">
+    <!-- Company Logo -->
+    <div class="logo-overlay">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+    </div>
+
 <!-- Background Elements -->
 <div class="gradient-bg"></div>
 <div class="mesh-overlay"></div>
