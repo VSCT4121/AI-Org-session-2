@@ -3,11 +3,13 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>The Transformer Architecture</title>
+<title>What is an LLM?</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
 <style>
+    * { box-sizing: border-box; }
+
     body {
         margin: 0; padding: 0;
         background-color: #0f172a;
@@ -15,583 +17,311 @@
         font-family: 'Inter', sans-serif;
         overflow: hidden;
     }
+
     .slide-container {
         width: 1280px; height: 720px;
         position: relative;
-        background-color: #0f172a;
+        background: linear-gradient(135deg, #0a1628 0%, #0f172a 50%, #0d1f3c 100%);
         display: flex; flex-direction: column;
-        padding: 28px 50px;
+        padding: 56px 80px 48px 80px;
         box-sizing: border-box;
+        overflow: hidden;
     }
+
+    /* ── Background Grid ── */
     .bg-grid {
         position: absolute; top: 0; left: 0;
         width: 100%; height: 100%;
         background-image:
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
+            linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+        background-size: 48px 48px;
         z-index: 0; pointer-events: none;
     }
-    /* Glow orb */
-    .glow-orb {
+
+    /* ── Glow Orbs ── */
+    .glow-orb-1 {
+        position: absolute; width: 600px; height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(59,130,246,0.07) 0%, transparent 65%);
+        top: -200px; right: -150px;
+        z-index: 0; pointer-events: none;
+        animation: orb-drift-1 8s ease-in-out infinite alternate;
+    }
+    .glow-orb-2 {
         position: absolute; width: 400px; height: 400px;
         border-radius: 50%;
-        background: radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%);
-        top: -100px; right: -80px; z-index: 0; pointer-events: none;
+        background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 65%);
+        bottom: -120px; left: -80px;
+        z-index: 0; pointer-events: none;
+        animation: orb-drift-2 10s ease-in-out infinite alternate;
     }
-    header {
-        z-index: 10; margin-bottom: 10px;
-        display: flex; justify-content: space-between; align-items: flex-end;
-        border-bottom: 1px solid rgba(168,85,247,0.3);
-        padding-bottom: 8px;
-    }
-    h1 {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 2rem; font-weight: 800;
-        margin: 0; color: white; letter-spacing: -1px;
-        text-shadow: 0 0 30px rgba(168,85,247,0.5);
-    }
-    .header-badge {
-        background: rgba(168,85,247,0.12);
-        border: 1px solid rgba(168,85,247,0.3);
-        color: #d8b4fe; padding: 4px 12px;
-        border-radius: 20px; font-size: 0.75rem;
-        font-family: 'JetBrains Mono', monospace;
-    }
-    .header-subtitle {
-        font-size: 0.85rem; color: #d8b4fe; margin: 2px 0 0 0;
-    }
-    .main-content {
-        display: flex; flex: 1; gap: 20px; z-index: 5;
-        min-height: 0;
-    }
-    /* ── LEFT COLUMN ── */
-    .left-col {
-        flex: 0 0 34%;
-        display: flex; flex-direction: column; gap: 10px;
-        min-height: 0;
-    }
-    .section-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.82rem; font-weight: 700;
-        color: #a855f7; margin-bottom: 6px;
-        display: flex; align-items: center; gap: 7px;
-        text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    /* Timeline */
-    .timeline-wrapper {
-        position: relative; padding-left: 14px;
-    }
-    .timeline-line {
-        position: absolute; left: 21px; top: 8px; bottom: 8px;
-        width: 2px;
-        background: linear-gradient(to bottom, rgba(168,85,247,0.6), rgba(168,85,247,0.1));
-    }
-    .timeline-item {
-        position: relative; margin-bottom: 8px; padding-left: 26px;
-    }
-    .timeline-dot {
-        position: absolute; left: 0; top: 6px;
-        width: 14px; height: 14px; border-radius: 50%;
-        background-color: #1e293b; border: 2px solid #475569; z-index: 2;
-        transition: all 0.3s;
-    }
-    .timeline-item.active .timeline-dot {
-        background-color: #a855f7; border-color: #d8b4fe;
-        box-shadow: 0 0 14px rgba(168,85,247,0.7);
-        transform: scale(1.2);
-    }
-    .timeline-content {
-        background-color: rgba(30,41,59,0.5);
-        border-radius: 8px; padding: 7px 10px;
-        border: 1px solid rgba(255,255,255,0.05);
-        transition: all 0.2s;
-    }
-    .timeline-item:hover .timeline-content {
-        transform: translateX(4px);
-        border-color: rgba(168,85,247,0.3);
-    }
-    .timeline-item.active .timeline-content {
-        background-color: rgba(168,85,247,0.12);
-        border-color: rgba(168,85,247,0.5);
-    }
-    .timeline-year {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.68rem; color: #a855f7; font-weight: 700;
-        display: block; margin-bottom: 1px;
-    }
-    .timeline-item.active .timeline-year { color: #f0abfc; }
-    .timeline-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.82rem; font-weight: 700; color: white; margin: 0 0 2px 0;
-    }
-    .timeline-desc {
-        font-size: 0.65rem; color: #94a3b8; margin: 0; line-height: 1.35;
-    }
-    /* Why Transformers */
-    .why-box {
-        background: rgba(168,85,247,0.07);
-        border: 1px solid rgba(168,85,247,0.22);
-        border-radius: 10px; padding: 10px 12px;
-    }
-    .why-item {
-        display: flex; align-items: flex-start; gap: 8px;
-        margin-bottom: 7px; font-size: 0.74rem; color: #e2e8f0;
-        line-height: 1.35;
-    }
-    .why-item:last-child { margin-bottom: 0; }
-    .why-check {
-        width: 18px; height: 18px; border-radius: 50%;
-        background: rgba(168,85,247,0.25);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.55rem; color: #d8b4fe; flex-shrink: 0; margin-top: 1px;
-    }
-    .why-label { font-weight: 600; color: #f0abfc; }
-    /* ── RIGHT COLUMN ── */
-    .right-col {
-        flex: 1;
-        background: rgba(15,23,42,0.7);
-        border-radius: 16px;
-        border: 1px solid rgba(168,85,247,0.18);
-        padding: 12px 14px;
-        display: flex; flex-direction: column;
-        position: relative; overflow: hidden;
-        min-height: 0;
-    }
-    .arch-layout {
-        display: flex; gap: 14px; flex: 1; min-height: 0; overflow: hidden;
-    }
-    /* Architecture Stack */
-    .arch-stack {
-        flex: 0 0 50%;
-        display: flex; flex-direction: column;
-        align-items: center; gap: 1px;
-        padding-top: 2px; overflow: hidden;
-    }
-    .arch-block {
-        width: 100%; max-width: 240px;
-        padding: 3px 8px;
-        background: rgba(30,41,59,0.9);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 7px; text-align: center;
-        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-        cursor: default;
-    }
-    .arch-block:hover {
-        transform: scale(1.03);
-        border-color: #a855f7;
-        box-shadow: 0 0 12px rgba(168,85,247,0.3);
-        z-index: 10; position: relative;
-    }
-    .arch-title {
-        font-family: 'Montserrat', sans-serif;
-        font-weight: 700; font-size: 0.75rem; color: white; margin: 0;
-    }
-    .arch-subtitle {
-        font-size: 0.6rem; color: #94a3b8; margin: 1px 0 0 0;
-    }
-    .block-input  { border-left: 3px solid #60a5fa; }
-    .block-encode { border-left: 3px solid #34d399; }
-    .block-attn   { border-left: 3px solid #a855f7; background: linear-gradient(90deg, rgba(168,85,247,0.1), rgba(30,41,59,0.9)); }
-    .block-norm   { border-left: 3px solid #64748b; }
-    .block-ffn    { border-left: 3px solid #f472b6; }
-    .block-output { border-left: 3px solid #fbbf24; }
-    .flow-arrow {
-        color: rgba(255,255,255,0.25); font-size: 0.75rem;
-        animation: pulse-arrow 2s infinite;
-    }
-    @keyframes pulse-arrow {
-        0%   { opacity: 0.25; transform: translateY(0); }
-        50%  { opacity: 0.7;  transform: translateY(2px); }
-        100% { opacity: 0.25; transform: translateY(0); }
-    }
-    .stack-wrapper {
-        position: relative; width: 100%; max-width: 240px;
-    }
-    .stack-box {
-        border: 1px dashed rgba(168,85,247,0.3);
-        padding: 4px 6px; border-radius: 10px;
-        background: rgba(168,85,247,0.04);
-        display: flex; flex-direction: column; gap: 2px; align-items: center;
-    }
-    .stack-bracket {
-        position: absolute; right: -14px; top: 8%; bottom: 8%;
-        width: 10px;
-        border-right: 2px solid #a855f7;
-        border-top: 2px solid #a855f7;
-        border-bottom: 2px solid #a855f7;
-        border-radius: 0 5px 5px 0;
-    }
-    .stack-label {
-        position: absolute; right: -88px; top: 50%;
-        transform: translateY(-50%);
-        background: linear-gradient(135deg, #7c3aed, #a855f7);
-        color: white; padding: 3px 8px; border-radius: 10px;
-        font-size: 0.6rem; font-weight: 700; white-space: nowrap;
-        box-shadow: 0 0 10px rgba(168,85,247,0.4);
-    }
-    /* MHA Detail Panel */
-    .mha-panel {
-        flex: 1;
-        background: rgba(168,85,247,0.05);
-        border: 1px solid rgba(168,85,247,0.18);
-        border-radius: 10px; padding: 10px;
-        display: flex; flex-direction: column; gap: 8px;
-        min-height: 0; overflow: hidden;
-    }
-    .mha-panel-title {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.75rem; font-weight: 700; color: #d8b4fe;
-        text-align: center; padding-bottom: 6px;
-        border-bottom: 1px solid rgba(168,85,247,0.2);
-    }
-    .qkv-row {
-        display: flex; gap: 6px; justify-content: center;
-    }
-    .qkv-box {
-        flex: 1; padding: 5px 4px; border-radius: 6px;
-        text-align: center; font-family: 'JetBrains Mono', monospace;
-        font-size: 0.7rem; font-weight: 700;
-    }
-    .qkv-q { background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd; }
-    .qkv-k { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #6ee7b7; }
-    .qkv-v { background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.4); color: #d8b4fe; }
-    .heads-grid {
-        display: grid; grid-template-columns: 1fr 1fr;
-        gap: 5px;
-    }
-    .head-box {
-        background: rgba(30,41,59,0.8);
-        border: 1px solid rgba(168,85,247,0.2);
-        border-radius: 6px; padding: 5px;
-        text-align: center;
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .head-box.active-head {
-        border-color: #a855f7;
-        box-shadow: 0 0 8px rgba(168,85,247,0.4);
-    }
-    .head-label {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.6rem; color: #94a3b8; display: block;
-    }
-    .head-bar {
-        height: 4px; border-radius: 2px; margin-top: 3px;
-        background: linear-gradient(90deg, #7c3aed, #a855f7);
-    }
-    .concat-box {
-        background: rgba(251,191,36,0.1);
-        border: 1px solid rgba(251,191,36,0.3);
-        border-radius: 6px; padding: 5px;
-        text-align: center;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.65rem; font-weight: 700; color: #fbbf24;
-    }
-    .linear-box {
-        background: rgba(244,114,182,0.1);
-        border: 1px solid rgba(244,114,182,0.3);
-        border-radius: 6px; padding: 5px;
-        text-align: center;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.65rem; font-weight: 700; color: #f9a8d4;
-    }
-    /* Models Footer */
-    .models-
-    .models-footer-header {
-        display: flex; align-items: center; gap: 6px;
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.65rem; font-weight: 700;
-        color: #a855f7; text-transform: uppercase;
-        letter-spacing: 0.07em; margin-bottom: 4px;
-    }
-    .models-chips-row {
-        display: flex; gap: 6px;
-    }
-    .model-chip-item {
-        flex: 1;
-        background: rgba(30,41,59,0.85);
-        border: 1px solid rgba(168,85,247,0.2);
-        border-radius: 8px; padding: 4px 5px;
-        text-align: center;
-        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-        cursor: default;
-    }
-    .model-chip-item:hover {
-        border-color: rgba(168,85,247,0.6);
-        box-shadow: 0 0 10px rgba(168,85,247,0.2);
-        transform: translateY(-2px);
-    }
-    .model-chip-icon { font-size: 0.85rem; margin-bottom: 1px; }
-    .model-chip-name {
-        font-family: 'Montserrat', sans-serif;
-        font-size: 0.65rem; font-weight: 700;
-        color: white; display: block;
-    }
-    .model-chip-type {
-        font-size: 0.55rem; color: #a855f7;
-        font-family: 'JetBrains Mono', monospace;
-        display: block; margin-top: 1px;
-    }
-    /* Particle */
-    .data-particle {
-        position: absolute; width: 5px; height: 5px;
-        background-color: #a855f7; border-radius: 50%;
-        box-shadow: 0 0 8px #a855f7; z-index: 20;
-        pointer-events: none; opacity: 0;
-    }
-    @keyframes flow-up-dummy {
-        0%   { opacity: 0; }
-        10%  { opacity: 1; }
-        90%  { opacity: 1; }
-        100% { top: 8%; opacity: 0; }
+    .glow-orb-3 {
+        position: absolute; width: 250px; height: 250px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(96,165,250,0.05) 0%, transparent 65%);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 0; pointer-events: none;
+        animation: orb-pulse 6s ease-in-out infinite;
     }
 
-        /* Company Logo Overlay */
-        .logo-overlay {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            z-index: 100;
-        }
-        .logo-overlay img {
-            height: 50px;
-            opacity: 0.95;
-            object-fit: contain;
-        }
+    @keyframes orb-drift-1 {
+        0%   { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(-30px, 30px) scale(1.08); }
+    }
+    @keyframes orb-drift-2 {
+        0%   { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(20px, -20px) scale(1.05); }
+    }
+    @keyframes orb-pulse {
+        0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+        50%       { opacity: 0.8; transform: translate(-50%, -50%) scale(1.15); }
+    }
+
+    /* ── Particle Canvas ── */
+    #particle-canvas {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 1; pointer-events: none;
+    }
+
+    /* ── Logo ── */
+    .logo-overlay {
+        position: absolute;
+        top: 16px; right: 20px;
+        z-index: 100;
+    }
+    .logo-overlay img {
+        height: 50px; opacity: 0.95; object-fit: contain;
+    }
+
+    /* ── Header / Title ── */
+    .slide-header {
+        z-index: 10;
+        margin-bottom: 36px;
+        opacity: 0;
+        transform: translateY(-24px);
+        animation: fade-slide-down 0.7s cubic-bezier(0.22,1,0.36,1) 0.1s forwards;
+    }
+
+    h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 3rem; font-weight: 800;
+        margin: 0 0 14px 0;
+        color: white;
+        letter-spacing: -1.5px;
+        line-height: 1.1;
+    }
+
+    .title-accent {
+        width: 64px; height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        border-radius: 2px;
+        animation: accent-grow 0.6s cubic-bezier(0.22,1,0.36,1) 0.7s both;
+        transform-origin: left center;
+    }
+
+    @keyframes accent-grow {
+        from { transform: scaleX(0); opacity: 0; }
+        to   { transform: scaleX(1); opacity: 1; }
+    }
+
+    /* ── Bullets ── */
+    .bullets-list {
+        z-index: 10;
+        display: flex; flex-direction: column;
+        gap: 28px;
+        list-style: none; margin: 0; padding: 0;
+    }
+
+    .bullet-item {
+        display: flex; align-items: center; gap: 22px;
+        opacity: 0;
+        transform: translateX(-32px);
+    }
+
+    /* Staggered animation delays */
+    .bullet-item:nth-child(1) { animation: fade-slide-in 0.6s cubic-bezier(0.22,1,0.36,1) 0.85s forwards; }
+    .bullet-item:nth-child(2) { animation: fade-slide-in 0.6s cubic-bezier(0.22,1,0.36,1) 1.05s forwards; }
+    .bullet-item:nth-child(3) { animation: fade-slide-in 0.6s cubic-bezier(0.22,1,0.36,1) 1.25s forwards; }
+    .bullet-item:nth-child(4) { animation: fade-slide-in 0.6s cubic-bezier(0.22,1,0.36,1) 1.45s forwards; }
+    .bullet-item:nth-child(5) { animation: fade-slide-in 0.6s cubic-bezier(0.22,1,0.36,1) 1.65s forwards; }
+
+    @keyframes fade-slide-in {
+        from { opacity: 0; transform: translateX(-32px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fade-slide-down {
+        from { opacity: 0; transform: translateY(-24px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Bullet dot */
+    .bullet-dot {
+        width: 16px; height: 16px;
+        border-radius: 50%;
+        background: #3b82f6;
+        flex-shrink: 0;
+        box-shadow: 0 0 0 0 rgba(59,130,246,0.5);
+        position: relative;
+    }
+
+    /* Ripple pulse on each dot — staggered */
+    .bullet-item:nth-child(1) .bullet-dot { animation: dot-pulse 3s ease-in-out 2.0s infinite; }
+    .bullet-item:nth-child(2) .bullet-dot { animation: dot-pulse 3s ease-in-out 2.4s infinite; }
+    .bullet-item:nth-child(3) .bullet-dot { animation: dot-pulse 3s ease-in-out 2.8s infinite; }
+    .bullet-item:nth-child(4) .bullet-dot { animation: dot-pulse 3s ease-in-out 3.2s infinite; }
+    .bullet-item:nth-child(5) .bullet-dot { animation: dot-pulse 3s ease-in-out 3.6s infinite; }
+
+    @keyframes dot-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.5); }
+        50%       { box-shadow: 0 0 0 7px rgba(59,130,246,0); }
+    }
+
+    /* Bullet text */
+    .bullet-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.25rem;
+        font-weight: 400;
+        color: #e2e8f0;
+        line-height: 1.4;
+        letter-spacing: 0.01em;
+    }
+
+    /* Hover lift on each bullet row */
+    .bullet-item {
+        cursor: default;
+        transition: transform 0.25s ease;
+    }
+    .bullet-item:hover {
+        transform: translateX(8px);
+    }
+    .bullet-item:hover .bullet-dot {
+        background: #60a5fa;
+        box-shadow: 0 0 14px rgba(96,165,250,0.6);
+    }
+    .bullet-item:hover .bullet-text {
+        color: #ffffff;
+    }
 </style>
 </head>
 <body>
 <div class="slide-container">
-    <!-- Company Logo -->
+
+    <!-- Background layers -->
+    <div class="bg-grid"></div>
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+    <div class="glow-orb-3"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Logo -->
     <div class="logo-overlay">
-        <img src="assets/Cogninelogo.png" alt="Cognine Logo">
+        <img src="assets/Cogninelogo.png" alt="Cognine Logo"/>
     </div>
 
-<div class="bg-grid"></div>
-<div class="glow-orb"></div>
-
-<header>
-    <div>
-        <h1>The Transformer Architecture</h1>
-        <p class="header-subtitle"><i class="fas fa-quote-left" style="font-size:0.7rem; opacity:0.6;"></i> Attention Is All You Need — Vaswani et al., 2017</p>
-    </div>
-    <span class="header-badge">Architecture v1.0</span>
-</header>
-
-<div class="main-content">
-    <!-- ── LEFT: Timeline + Why ── -->
-    <div class="left-col">
-        <div>
-            <div class="section-title"><i class="fas fa-history"></i> Evolution Path</div>
-            <div class="timeline-wrapper">
-                <div class="timeline-line"></div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-year">1980s – 2000s</span>
-                        <h4 class="timeline-title">RNNs</h4>
-                        <p class="timeline-desc">Sequential processing. Struggle with long-range dependencies and slow training.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-year">1997 – 2010s</span>
-                        <h4 class="timeline-title">LSTMs / GRUs</h4>
-                        <p class="timeline-desc">Memory gates improved retention, but sequential bottleneck remained.</p>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-year">2014</span>
-                        <h4 class="timeline-title">Attention Mechanism</h4>
-                        <p class="timeline-desc">Bahdanau et al. — models learn to focus on relevant input positions.</p>
-                    </div>
-                </div>
-                <div class="timeline-item active">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-year">2017 ★</span>
-                        <h4 class="timeline-title">The Transformer</h4>
-                        <p class="timeline-desc">Pure attention, fully parallel, scales to billions of parameters.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <div class="section-title"><i class="fas fa-bolt"></i> Why Transformers Win</div>
-            <div class="why-box">
-                <div class="why-item">
-                    <div class="why-check"><i class="fas fa-check"></i></div>
-                    <div><span class="why-label">Parallelizable</span> — all tokens processed simultaneously, not sequentially</div>
-                </div>
-                <div class="why-item">
-                    <div class="why-check"><i class="fas fa-check"></i></div>
-                    <div><span class="why-label">Long-range context</span> — any two tokens attend to each other in O(1) steps</div>
-                </div>
-                <div class="why-item">
-                    <div class="why-check"><i class="fas fa-check"></i></div>
-                    <div><span class="why-label">Scales with compute</span> — more data + bigger model = better performance</div>
-                </div>
-                <div class="why-item">
-                    <div class="why-check"><i class="fas fa-check"></i></div>
-                    <div><span class="why-label">Transfer learning</span> — pre-train once, fine-tune for any task</div>
-                </div>
-            </div>
-        </div>
+    <!-- Title -->
+    <div class="slide-header">
+        <h1>What is an LLM?</h1>
+        <div class="title-accent"></div>
     </div>
 
-    <!-- ── RIGHT: Architecture ── -->
-    <div class="right-col">
-        <div class="section-title" style="margin-bottom:8px;"><i class="fas fa-brain"></i> Transformer Architecture</div>
-        <div id="particle-container" style="position:absolute;inset:0;pointer-events:none;z-index:1;"></div>
-
-        <div class="arch-layout">
-            <!-- Architecture Stack -->
-            <div class="arch-stack">
-                <!-- Output -->
-                <div class="arch-block block-output">
-                    <h4 class="arch-title">Output Probabilities</h4>
-                    <p class="arch-subtitle">Softmax over Vocabulary</p>
-                </div>
-                <i class="fas fa-arrow-up flow-arrow"></i>
-                <div class="arch-block block-output" style="border-left-color:#f59e0b;">
-                    <h4 class="arch-title">Linear Projection</h4>
-                    <p class="arch-subtitle">d_model → vocab_size</p>
-                </div>
-                <i class="fas fa-arrow-up flow-arrow"></i>
-
-                <!-- Encoder Stack -->
-                <div class="stack-wrapper">
-                    <div class="stack-box">
-                        <div class="arch-block block-ffn" style="width:100%;">
-                            <h4 class="arch-title">Feed-Forward Network</h4>
-                            <p class="arch-subtitle">Dense + ReLU + Dense</p>
-                        </div>
-                        <div class="arch-block block-norm" style="width:100%;">
-                            <h4 class="arch-title">Add &amp; Layer Norm</h4>
-                            <p class="arch-subtitle">Residual Connection</p>
-                        </div>
-                        <div class="arch-block block-attn" style="width:100%;">
-                            <h4 class="arch-title">Multi-Head Self-Attention</h4>
-                            <p class="arch-subtitle">Scaled Dot-Product × h heads</p>
-                        </div>
-                        <div class="arch-block block-norm" style="width:100%;">
-                            <h4 class="arch-title">Add &amp; Layer Norm</h4>
-                            <p class="arch-subtitle">Residual Connection</p>
-                        </div>
-                    </div>
-                    <div class="stack-bracket"></div>
-                    <div class="stack-label">× N Layers (e.g. 96)</div>
-                </div>
-
-                <i class="fas fa-arrow-up flow-arrow"></i>
-                <div class="arch-block block-encode">
-                    <h4 class="arch-title">Positional Encoding</h4>
-                    <p class="arch-subtitle">sin/cos wave injection</p>
-                </div>
-                <i class="fas fa-plus" style="color:rgba(255,255,255,0.25);font-size:0.7rem;"></i>
-                <div class="arch-block block-input">
-                    <h4 class="arch-title">Input Embeddings</h4>
-                    <p class="arch-subtitle">Token → d_model vector</p>
-                </div>
-            </div>
-
-            <!-- MHA Detail Panel -->
-            <div class="mha-panel">
-                <div class="mha-panel-title"><i class="fas fa-project-diagram" style="margin-right:5px;"></i>Multi-Head Attention Detail</div>
-
-                <div class="qkv-row">
-                    <div class="qkv-box qkv-q">Q<br/><span style="font-size:0.55rem;font-weight:400;color:#93c5fd;">Query</span></div>
-                    <div class="qkv-box qkv-k">K<br/><span style="font-size:0.55rem;font-weight:400;color:#6ee7b7;">Key</span></div>
-                    <div class="qkv-box qkv-v">V<br/><span style="font-size:0.55rem;font-weight:400;color:#d8b4fe;">Value</span></div>
-                </div>
-
-                <div style="text-align:center;font-size:0.6rem;color:#64748b;">↓ split into h heads</div>
-
-                <div class="heads-grid" id="heads-grid">
-                    <div class="head-box active-head">
-                        <span class="head-label">Head 1 — Syntax</span>
-                        <div class="head-bar" style="width:85%;"></div>
-                    </div>
-                    <div class="head-box">
-                        <span class="head-label">Head 2 — Coreference</span>
-                        <div class="head-bar" style="width:70%;background:linear-gradient(90deg,#1d4ed8,#3b82f6);"></div>
-                    </div>
-                    <div class="head-box">
-                        <span class="head-label">Head 3 — Semantics</span>
-                        <div class="head-bar" style="width:60%;background:linear-gradient(90deg,#065f46,#10b981);"></div>
-                    </div>
-                    <div class="head-box">
-                        <span class="head-label">Head 4 — Position</span>
-                        <div class="head-bar" style="width:45%;background:linear-gradient(90deg,#92400e,#f59e0b);"></div>
-                    </div>
-                </div>
-
-                <div style="text-align:center;font-size:0.6rem;color:#64748b;">↓ concatenate all heads</div>
-                <div class="concat-box">Concat(head₁, head₂, ..., headₕ)</div>
-                <div style="text-align:center;font-size:0.6rem;color:#64748b;">↓ project back</div>
-                <div class="linear-box">Linear W<sup>O</sup> → Output</div>
-
-                <div style="margin-top:auto;padding-top:6px;border-top:1px solid rgba(255,255,255,0.07);">
-                    <div style="font-size:0.6rem;color:#64748b;text-align:center;font-family:'JetBrains Mono',monospace;">
-                        Attention(Q,K,V) = softmax(QKᵀ / √d<sub>k</sub>) · V
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Models Footer -->
-        
-    </div>
-</div>
+    <!-- Bullet Points -->
+    <ul class="bullets-list">
+        <li class="bullet-item">
+            <span class="bullet-dot"></span>
+            <span class="bullet-text">AI system trained to understand and generate human language</span>
+        </li>
+        <li class="bullet-item">
+            <span class="bullet-dot"></span>
+            <span class="bullet-text">Foundation model capable of many tasks</span>
+        </li>
+        <li class="bullet-item">
+            <span class="bullet-dot"></span>
+            <span class="bullet-text">Learns via self-supervised learning</span>
+        </li>
+        <li class="bullet-item">
+            <span class="bullet-dot"></span>
+            <span class="bullet-text">Trained on massive text: books, articles, conversations, code</span>
+        </li>
+        <li class="bullet-item">
+            <span class="bullet-dot"></span>
+            <span class="bullet-text">Understands context and produces coherent responses</span>
+        </li>
+    </ul>
 
 </div>
 
 <script>
-    // Particle animation - originates from Input Embeddings block
-    const pContainer = document.getElementById('particle-container');
-    function createParticle() {
-        const inputBlock = document.querySelector('.block-input');
-        if (!inputBlock) return;
-        const containerRect = pContainer.getBoundingClientRect();
-        const blockRect = inputBlock.getBoundingClientRect();
-        const startTop = blockRect.top - containerRect.top + blockRect.height / 2;
-        const endTop = pContainer.offsetHeight * 0.05;
-        const duration = 1800 + Math.random() * 1200;
-        const cx = blockRect.left - containerRect.left + blockRect.width * 0.5;
-        const p = document.createElement('div');
-        p.classList.add('data-particle');
-        p.style.left = (cx + (Math.random()-0.5)*50) + 'px';
-        p.style.top = startTop + 'px';
-        p.style.opacity = '0';
-        pContainer.appendChild(p);
-        const startTime = performance.now();
-        function animate(now) {
-            const t = Math.min((now - startTime) / duration, 1);
-            p.style.top = (startTop + (endTop - startTop) * t) + 'px';
-            if (t < 0.1) p.style.opacity = (t / 0.1).toString();
-            else if (t > 0.9) p.style.opacity = ((1 - t) / 0.1).toString();
-            else p.style.opacity = '1';
-            if (t < 1) requestAnimationFrame(animate);
-            else p.remove();
-        }
-        requestAnimationFrame(animate);
-    }
-    setInterval(createParticle, 350);
-    for(let i=0;i<4;i++) setTimeout(createParticle, i*250);
+    // ── Floating Particle System ──
+    const canvas = document.getElementById('particle-canvas');
+    const ctx    = canvas.getContext('2d');
 
-    // Cycle active head highlight
-    const heads = document.querySelectorAll('.head-box');
-    let activeHead = 0;
-    setInterval(() => {
-        heads.forEach(h => h.classList.remove('active-head'));
-        activeHead = (activeHead + 1) % heads.length;
-        heads[activeHead].classList.add('active-head');
-    }, 1800);
+    canvas.width  = 1280;
+    canvas.height = 720;
+
+    const PARTICLE_COUNT = 55;
+    const particles = [];
+
+    class Particle {
+        constructor() { this.reset(true); }
+
+        reset(initial = false) {
+            this.x     = Math.random() * canvas.width;
+            this.y     = initial ? Math.random() * canvas.height : canvas.height + 6;
+            this.size  = 1 + Math.random() * 2.5;
+            this.speedY = 0.25 + Math.random() * 0.55;
+            this.speedX = (Math.random() - 0.5) * 0.3;
+            this.opacity = 0;
+            this.maxOpacity = 0.12 + Math.random() * 0.22;
+            this.fadeIn  = true;
+            this.life    = 0;
+            this.maxLife = 280 + Math.random() * 200;
+            // Blue-tinted colours matching the accent
+            const hue = 210 + Math.floor(Math.random() * 30);
+            this.color = `hsl(${hue}, 80%, 65%)`;
+        }
+
+        update() {
+            this.life++;
+            this.y -= this.speedY;
+            this.x += this.speedX;
+
+            // Fade in / fade out
+            if (this.life < 40) {
+                this.opacity = (this.life / 40) * this.maxOpacity;
+            } else if (this.life > this.maxLife - 40) {
+                this.opacity = ((this.maxLife - this.life) / 40) * this.maxOpacity;
+            } else {
+                this.opacity = this.maxOpacity;
+            }
+
+            if (this.life >= this.maxLife || this.y < -10) this.reset();
+        }
+
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = this.color;
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
 </script>
 </body>
 </html>
-
