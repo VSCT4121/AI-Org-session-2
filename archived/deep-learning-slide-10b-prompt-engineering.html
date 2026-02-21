@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prompt Engineering</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
+    body {
+        margin: 0; padding: 0;
+        background-color: #0f172a;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+    }
+    .slide-container {
+        width: 1280px; height: 720px;
+        position: relative;
+        background-color: #0f172a;
+        display: flex; flex-direction: column;
+        padding: 28px 50px;
+        box-sizing: border-box;
+    }
+    .bg-grid {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-image:
+            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        z-index: 0; pointer-events: none;
+    }
+    .glow-orb {
+        position: absolute; width: 500px; height: 500px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 70%);
+        bottom: -150px; right: -100px; z-index: 0; pointer-events: none;
+    }
+    .glow-orb-2 {
+        position: absolute; width: 300px; height: 300px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(52,211,153,0.05) 0%, transparent 70%);
+        top: -80px; left: -60px; z-index: 0; pointer-events: none;
+    }
+    header {
+        z-index: 10; margin-bottom: 10px;
+        display: flex; justify-content: space-between; align-items: flex-end;
+        border-bottom: 1px solid rgba(16,185,129,0.3);
+        padding-bottom: 8px;
+    }
+    h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2rem; font-weight: 800;
+        margin: 0; color: white; letter-spacing: -1px;
+        text-shadow: 0 0 30px rgba(16,185,129,0.5);
+    }
+    .header-subtitle {
+        font-size: 0.85rem; color: #6ee7b7; margin: 2px 0 0 0;
+    }
+    .header-badge {
+        background: rgba(16,185,129,0.1);
+        border: 1px solid rgba(16,185,129,0.3);
+        color: #6ee7b7; padding: 4px 12px;
+        border-radius: 20px; font-size: 0.75rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    .main-content {
+        display: flex; flex: 1; gap: 20px; z-index: 5; min-height: 0;
+    }
+    .section-title {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.82rem; font-weight: 700;
+        color: #10b981; margin-bottom: 8px;
+        display: flex; align-items: center; gap: 7px;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    /* ── LEFT COLUMN ── */
+    .left-col {
+        flex: 0 0 42%;
+        display: flex; flex-direction: column; gap: 12px;
+        min-height: 0;
+    }
+
+    /* Anatomy Card */
+    .anatomy-card {
+        background: rgba(15,23,42,0.7);
+        border: 1px solid rgba(16,185,129,0.18);
+        border-radius: 12px; padding: 12px 14px;
+        flex-shrink: 0;
+    }
+    .anatomy-parts {
+        display: flex; flex-direction: column; gap: 5px;
+        margin-top: 4px;
+    }
+    .anatomy-part {
+        display: flex; align-items: stretch; gap: 0;
+        border-radius: 7px; overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.06);
+        transition: transform 0.2s;
+    }
+    .anatomy-part:hover { transform: translateX(3px); }
+    .part-label {
+        width: 100px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.65rem; font-weight: 700;
+        padding: 6px 8px; text-align: center;
+    }
+    .part-content {
+        flex: 1; padding: 6px 10px;
+        font-size: 0.68rem; color: #cbd5e1;
+        display: flex; align-items: center;
+        background: rgba(30,41,59,0.6);
+        font-family: 'JetBrains Mono', monospace;
+        line-height: 1.3;
+    }
+
+    /* Anatomy color themes */
+    .part-system   .part-label { background: rgba(59,130,246,0.2);  color: #93c5fd; border-right: 2px solid #3b82f6; }
+    .part-context  .part-label { background: rgba(245,158,11,0.2);  color: #fcd34d; border-right: 2px solid #f59e0b; }
+    .part-instruct .part-label { background: rgba(16,185,129,0.2);  color: #6ee7b7; border-right: 2px solid #10b981; }
+    .part-input    .part-label { background: rgba(168,85,247,0.2);  color: #d8b4fe; border-right: 2px solid #a855f7; }
+    .part-format   .part-label { background: rgba(244,114,182,0.2); color: #f9a8d4; border-right: 2px solid #f472b6; }
+
+    /* Live Example */
+    .example-card {
+        background: rgba(16,185,129,0.05);
+        border: 1px solid rgba(16,185,129,0.2);
+        border-radius: 12px; padding: 12px 14px;
+        flex: 1; min-height: 0;
+    }
+    .example-prompt {
+        background: rgba(15,23,42,0.8);
+        border-radius: 8px; padding: 10px 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; line-height: 1.6;
+        border: 1px solid rgba(255,255,255,0.07);
+        height: calc(100% - 32px);
+        overflow: hidden;
+    }
+    .prompt-line { display: flex; gap: 6px; margin-bottom: 3px; }
+    .prompt-tag {
+        font-size: 0.58rem; font-weight: 700; padding: 1px 5px;
+        border-radius: 3px; flex-shrink: 0; margin-top: 1px;
+        font-family: 'Montserrat', sans-serif;
+    }
+    .tag-sys   { background: rgba(59,130,246,0.2);  color: #93c5fd; }
+    .tag-ctx   { background: rgba(245,158,11,0.2);  color: #fcd34d; }
+    .tag-ins   { background: rgba(16,185,129,0.2);  color: #6ee7b7; }
+    .tag-inp   { background: rgba(168,85,247,0.2);  color: #d8b4fe; }
+    .tag-fmt   { background: rgba(244,114,182,0.2); color: #f9a8d4; }
+    .prompt-text { color: #e2e8f0; font-size: 0.67rem; }
+
+    /* Typing cursor */
+    .cursor::after {
+        content: '▋';
+        animation: blink 1s step-end infinite;
+        color: #10b981;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── RIGHT COLUMN ── */
+    .right-col {
+        flex: 1;
+        display: flex; flex-direction: column; gap: 12px;
+        min-height: 0;
+    }
+
+    /* Techniques Grid */
+    .techniques-card {
+        background: rgba(15,23,42,0.7);
+        border: 1px solid rgba(16,185,129,0.18);
+        border-radius: 12px; padding: 12px 14px;
+        flex: 1; min-height: 0;
+    }
+    .techniques-grid {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 10px; height: calc(100% - 28px);
+    }
+    .technique-card {
+        background: rgba(30,41,59,0.7);
+        border-radius: 10px; padding: 11px 12px;
+        border: 1px solid rgba(255,255,255,0.07);
+        display: flex; flex-direction: column; gap: 5px;
+        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        cursor: default;
+    }
+    .technique-card:hover { transform: translateY(-2px); }
+    .tech-header { display: flex; align-items: center; gap: 8px; }
+    .tech-icon {
+        width: 30px; height: 30px; border-radius: 7px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem; flex-shrink: 0;
+    }
+    .tech-name {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 0.82rem; font-weight: 700;
+    }
+    .tech-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.55rem; padding: 1px 5px;
+        border-radius: 3px; margin-left: auto;
+    }
+    .tech-desc { font-size: 0.67rem; color: #94a3b8; line-height: 1.4; }
+    .tech-example {
+        background: rgba(15,23,42,0.7);
+        border-radius: 5px; padding: 5px 7px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.6rem; line-height: 1.4;
+        border-left: 2px solid;
+        margin-top: auto;
+    }
+
+    /* Technique themes */
+    .tech-zero  { border-color: rgba(59,130,246,0.3); }
+    .tech-zero:hover  { border-color: rgba(59,130,246,0.6); box-shadow: 0 4px 16px rgba(59,130,246,0.12); }
+    .tech-zero .tech-icon  { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); color: #60a5fa; }
+    .tech-zero .tech-name  { color: #93c5fd; }
+    .tech-zero .tech-badge { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .tech-zero .tech-example { border-color: #3b82f6; color: #93c5fd; }
+
+    .tech-few   { border-color: rgba(245,158,11,0.3); }
+    .tech-few:hover   { border-color: rgba(245,158,11,0.6); box-shadow: 0 4px 16px rgba(245,158,11,0.12); }
+    .tech-few .tech-icon   { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: #fbbf24; }
+    .tech-few .tech-name   { color: #fcd34d; }
+    .tech-few .tech-badge  { background: rgba(245,158,11,0.15); color: #fcd34d; }
+    .tech-few .tech-example { border-color: #f59e0b; color: #fcd34d; }
+
+    .tech-cot   { border-color: rgba(168,85,247,0.3); }
+    .tech-cot:hover   { border-color: rgba(168,85,247,0.6); box-shadow: 0 4px 16px rgba(168,85,247,0.12); }
+    .tech-cot .tech-icon   { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.25); color: #c084fc; }
+    .tech-cot .tech-name   { color: #d8b4fe; }
+    .tech-cot .tech-badge  { background: rgba(168,85,247,0.15); color: #d8b4fe; }
+    .tech-cot .tech-example { border-color: #a855f7; color: #d8b4fe; }
+
+    .tech-role  { border-color: rgba(244,114,182,0.3); }
+    .tech-role:hover  { border-color: rgba(244,114,182,0.6); box-shadow: 0 4px 16px rgba(244,114,182,0.12); }
+    .tech-role .tech-icon  { background: rgba(244,114,182,0.12); border: 1px solid rgba(244,114,182,0.25); color: #f472b6; }
+    .tech-role .tech-name  { color: #f9a8d4; }
+    .tech-role .tech-badge { background: rgba(244,114,182,0.15); color: #f9a8d4; }
+    .tech-role .tech-example { border-color: #f472b6; color: #f9a8d4; }
+
+    /* Best Practices */
+    .practices-card {
+        background: rgba(15,23,42,0.7);
+        border: 1px solid rgba(16,185,129,0.18);
+        border-radius: 12px; padding: 10px 14px;
+        flex-shrink: 0;
+    }
+    .practices-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    }
+    .practice-item {
+        background: rgba(30,41,59,0.6);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 8px; padding: 7px 9px;
+        display: flex; align-items: flex-start; gap: 7px;
+        transition: border-color 0.3s;
+    }
+    .practice-item:hover { border-color: rgba(16,185,129,0.35); }
+    .practice-check {
+        width: 18px; height: 18px; border-radius: 50%;
+        background: rgba(16,185,129,0.15);
+        border: 1px solid rgba(16,185,129,0.3);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.5rem; color: #10b981; flex-shrink: 0; margin-top: 1px;
+    }
+    .practice-text {
+        font-size: 0.65rem; color: #cbd5e1; line-height: 1.35;
+    }
+    .practice-text strong { color: #6ee7b7; font-weight: 600; }
+
+    @keyframes slide-in {
+        from { opacity: 0; transform: translateX(-8px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+</style>
+</head>
+<body>
+<div class="slide-container">
+<div class="bg-grid"></div>
+<div class="glow-orb"></div>
+<div class="glow-orb-2"></div>
+
+<header>
+    <div>
+        <h1>Prompt Engineering</h1>
+        <p class="header-subtitle"><i class="fas fa-terminal" style="font-size:0.7rem;opacity:0.7;margin-right:4px;"></i>The Art &amp; Science of Communicating with AI</p>
+    </div>
+    <span class="header-badge">Prompting Techniques</span>
+</header>
+
+<div class="main-content">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div class="left-col">
+
+        <!-- Prompt Anatomy -->
+        <div class="anatomy-card">
+            <div class="section-title"><i class="fas fa-puzzle-piece"></i> Prompt Anatomy</div>
+            <div class="anatomy-parts">
+                <div class="anatomy-part part-system">
+                    <div class="part-label">🛡️ System</div>
+                    <div class="part-content">Sets the AI's role, persona, and constraints</div>
+                </div>
+                <div class="anatomy-part part-context">
+                    <div class="part-label">📚 Context</div>
+                    <div class="part-content">Background knowledge or relevant information</div>
+                </div>
+                <div class="anatomy-part part-instruct">
+                    <div class="part-label">🎯 Instruction</div>
+                    <div class="part-content">The specific task or action to perform</div>
+                </div>
+                <div class="anatomy-part part-input">
+                    <div class="part-label">📥 Input</div>
+                    <div class="part-content">The actual data or question to process</div>
+                </div>
+                <div class="anatomy-part part-format">
+                    <div class="part-label">📋 Format</div>
+                    <div class="part-content">Desired output structure (JSON, list, table…)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Example -->
+        <div class="example-card">
+            <div class="section-title"><i class="fas fa-code"></i> Example Prompt</div>
+            <div class="example-prompt">
+                <div class="prompt-line">
+                    <span class="prompt-tag tag-sys">SYS</span>
+                    <span class="prompt-text">You are an expert data scientist.</span>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt-tag tag-ctx">CTX</span>
+                    <span class="prompt-text">We have a dataset of 10k customer records with churn labels.</span>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt-tag tag-ins">INS</span>
+                    <span class="prompt-text">Suggest the top 3 ML models to predict churn and explain why.</span>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt-tag tag-inp">INP</span>
+                    <span class="prompt-text">Features: age, tenure, usage_freq, support_calls.</span>
+                </div>
+                <div class="prompt-line">
+                    <span class="prompt-tag tag-fmt">FMT</span>
+                    <span class="prompt-text">Respond as a numbered list with pros/cons.<span class="cursor"></span></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── RIGHT COLUMN ── -->
+    <div class="right-col">
+
+        <!-- Techniques Grid -->
+        <div class="techniques-card">
+            <div class="section-title"><i class="fas fa-layer-group"></i> Core Prompting Techniques</div>
+            <div class="techniques-grid">
+
+                <!-- Zero-Shot -->
+                <div class="technique-card tech-zero">
+                    <div class="tech-header">
+                        <div class="tech-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="tech-name">Zero-Shot</div>
+                        <span class="tech-badge">No Examples</span>
+                    </div>
+                    <div class="tech-desc">Ask the model to perform a task with no prior examples. Relies entirely on pre-trained knowledge.</div>
+                    <div class="tech-example">
+                        "Classify the sentiment of:<br/>
+                        'The product is amazing!'"
+                    </div>
+                </div>
+
+                <!-- Few-Shot -->
+                <div class="technique-card tech-few">
+                    <div class="tech-header">
+                        <div class="tech-icon"><i class="fas fa-list-ol"></i></div>
+                        <div class="tech-name">Few-Shot</div>
+                        <span class="tech-badge">2–5 Examples</span>
+                    </div>
+                    <div class="tech-desc">Provide a handful of input-output examples to guide the model's behavior and output format.</div>
+                    <div class="tech-example">
+                        "Positive → 😊 | Negative → 😞<br/>
+                        'Great service!' → <span style="color:#fde68a;">😊</span>"
+                    </div>
+                </div>
+
+                <!-- Chain-of-Thought -->
+                <div class="technique-card tech-cot">
+                    <div class="tech-header">
+                        <div class="tech-icon"><i class="fas fa-link"></i></div>
+                        <div class="tech-name">Chain-of-Thought</div>
+                        <span class="tech-badge">Step-by-Step</span>
+                    </div>
+                    <div class="tech-desc">Instruct the model to reason step-by-step before answering. Dramatically improves complex reasoning tasks.</div>
+                    <div class="tech-example">
+                        "Let's think step by step.<br/>
+                        If 5 items cost $30, one costs…"
+                    </div>
+                </div>
+
+                <!-- Role Prompting -->
+                <div class="technique-card tech-role">
+                    <div class="tech-header">
+                        <div class="tech-icon"><i class="fas fa-user-tie"></i></div>
+                        <div class="tech-name">Role Prompting</div>
+                        <span class="tech-badge">Persona</span>
+                    </div>
+                    <div class="tech-desc">Assign a specific role or persona to the model to shape its tone, expertise level, and response style.</div>
+                    <div class="tech-example">
+                        "Act as a senior security engineer.<br/>
+                        Review this code for vulnerabilities."
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="practices-card">
+            <div class="section-title" style="margin-bottom:8px;"><i class="fas fa-star"></i> Best Practices</div>
+            <div class="practices-grid">
+                <div class="practice-item">
+                    <div class="practice-check"><i class="fas fa-check"></i></div>
+                    <div class="practice-text"><strong>Be Specific</strong> — clear, unambiguous instructions yield better results</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-check"><i class="fas fa-check"></i></div>
+                    <div class="practice-text"><strong>Set the Format</strong> — specify JSON, markdown, bullet points, etc.</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-check"><i class="fas fa-check"></i></div>
+                    <div class="practice-text"><strong>Iterate &amp; Refine</strong> — treat prompts as code; version and test them</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-check"><i class="fas fa-check"></i></div>
+                    <div class="practice-text"><strong>Use Delimiters</strong> — separate sections with <code style="color:#6ee7b7;">###</code> or XML tags</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-check"><i class="fas fa-check"></i></div>
+                    <div class="practice-text"><strong>Constrain Output</strong> — limit length, tone, and scope explicitly</div>
+                </div>
+                <div class="practice-item">
+                    <div class="practice-check"><i class="fas fa-check"></i></div>
+                    <div class="practice-text"><strong>Advanced: RAG</strong> — ground prompts with retrieved external knowledge</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div style="position:absolute;bottom:18px;right:40px;color:#475569;font-size:0.9rem;z-index:10;">13</div>
+</div>
+
+<script>
+    // Stagger animate technique cards on load
+    window.addEventListener('load', () => {
+        document.querySelectorAll('.technique-card').forEach((card, i) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 200 + i * 120);
+        });
+
+        // Stagger anatomy parts
+        document.querySelectorAll('.anatomy-part').forEach((part, i) => {
+            part.style.opacity = '0';
+            part.style.transform = 'translateX(-8px)';
+            part.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+            setTimeout(() => {
+                part.style.opacity = '1';
+                part.style.transform = 'translateX(0)';
+            }, 100 + i * 80);
+        });
+    });
+
+    // Cycle highlight on technique cards
+    const techCards = document.querySelectorAll('.technique-card');
+    let activeTech = -1;
+    setInterval(() => {
+        techCards.forEach(c => c.style.transform = '');
+        activeTech = (activeTech + 1) % techCards.length;
+        techCards[activeTech].style.transform = 'translateY(-3px)';
+        setTimeout(() => {
+            if (techCards[activeTech]) techCards[activeTech].style.transform = '';
+        }, 1200);
+    }, 2200);
+
+    // Cycle highlight on best practices
+    const practices = document.querySelectorAll('.practice-item');
+    let activePrac = 0;
+    setInterval(() => {
+        practices.forEach(p => {
+            p.style.borderColor = '';
+            p.style.background = '';
+        });
+        activePrac = (activePrac + 1) % practices.length;
+        practices[activePrac].style.borderColor = 'rgba(16,185,129,0.4)';
+        practices[activePrac].style.background = 'rgba(16,185,129,0.06)';
+        setTimeout(() => {
+            if (practices[activePrac]) {
+                practices[activePrac].style.borderColor = '';
+                practices[activePrac].style.background = '';
+            }
+        }, 1500);
+    }, 1800);
+</script>
+</body>
+</html>

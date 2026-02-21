@@ -76,13 +76,13 @@
     /* Sentence Container */
     .sentence-wrapper {
         position: relative;
-        padding: 46px 20px 34px 20px;
+        padding: 50px 20px 20px 20px;
         background-color: rgba(30, 41, 59, 0.5);
         border-radius: 16px;
         border: 1px solid rgba(255, 255, 255, 0.05);
         display: flex;
         justify-content: center;
-        margin-top: 10px;
+        margin-top: 0px;
         overflow: visible;
     }
 
@@ -145,15 +145,15 @@
         opacity: 1;
     }
 
-    /* Canvas for Arcs */
+    /* Canvas for Arcs — extends 80px above the container so arcs never clip */
     #attention-canvas {
         position: absolute;
-        top: 0;
+        top: -80px;
         left: 0;
         width: 100%;
-        height: 100%;
         pointer-events: none;
         z-index: 10;
+        overflow: visible;
     }
 
     /* QKV Concepts Section */
@@ -312,8 +312,9 @@
 <div class="tokens-container" id="sentence-tokens">
 <!-- Tokens injected via JS -->
 </div>
-<div style="position: absolute; bottom: 15px; left: 0; width: 100%; text-align: center; color: #64748b; font-size: 0.8rem;">
-<p><i class="fas fa-mouse-pointer"></i> Hover over "it" to see attention scores</p>
+<div style="position: absolute; top: 10px; right: 14px; background: rgba(15,23,42,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 4px 12px; color: #64748b; font-size: 0.72rem; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(4px); pointer-events: none;">
+    <i class="fas fa-mouse-pointer" style="font-size:0.65rem; color:#475569;"></i>
+    <span>Hover a word · click to lock</span>
 </div>
 </div>
 <!-- QKV Explanation Cards -->
@@ -387,10 +388,7 @@
 </div>
 </div>
 </div>
-<!-- Footer -->
-<div style="position: absolute; bottom: 20px; right: 40px; color: #475569; font-size: 0.9rem;">
-<p>09</p>
-</div>
+
 </div>
 <script>
         const sentence = "The animal didn't cross the street because it was too tired".split(" ");
@@ -402,15 +400,39 @@
         // Configuration for "it" (index 7 in split array)
         const focusIndex = 7; // "it"
         
-        // Mock Attention Weights for "it"
-        const attentionWeights = {
-            1: 0.87, // animal
-            5: 0.13, // street
-            9: 0.45, // tired
-            0: 0.01, 2: 0.01, 3: 0.02, 4: 0.01, 6: 0.05, 8: 0.05, 10: 0.05
-        };
+        // Attention Weights for ALL tokens (index = token position in sentence)
+        const allAttentionWeights = [
+            { 0:0.00, 1:0.55, 2:0.15, 3:0.10, 4:0.08, 5:0.04, 6:0.03, 7:0.02, 8:0.01, 9:0.01, 10:0.01 }, // 0: The
+            { 0:0.05, 1:0.00, 2:0.05, 3:0.05, 4:0.03, 5:0.05, 6:0.08, 7:0.52, 8:0.05, 9:0.05, 10:0.07 }, // 1: animal
+            { 0:0.05, 1:0.25, 2:0.00, 3:0.45, 4:0.05, 5:0.08, 6:0.05, 7:0.03, 8:0.02, 9:0.01, 10:0.01 }, // 2: didn't
+            { 0:0.03, 1:0.10, 2:0.20, 3:0.00, 4:0.05, 5:0.45, 6:0.05, 7:0.05, 8:0.03, 9:0.02, 10:0.02 }, // 3: cross
+            { 0:0.05, 1:0.05, 2:0.05, 3:0.08, 4:0.00, 5:0.60, 6:0.05, 7:0.05, 8:0.03, 9:0.02, 10:0.02 }, // 4: the
+            { 0:0.03, 1:0.08, 2:0.10, 3:0.42, 4:0.18, 5:0.00, 6:0.08, 7:0.05, 8:0.03, 9:0.01, 10:0.02 }, // 5: street
+            { 0:0.03, 1:0.20, 2:0.08, 3:0.08, 4:0.05, 5:0.08, 6:0.00, 7:0.35, 8:0.05, 9:0.05, 10:0.03 }, // 6: because
+            { 0:0.01, 1:0.87, 2:0.01, 3:0.02, 4:0.01, 5:0.13, 6:0.05, 7:0.00, 8:0.05, 9:0.45, 10:0.05 }, // 7: it
+            { 0:0.03, 1:0.10, 2:0.05, 3:0.05, 4:0.03, 5:0.05, 6:0.08, 7:0.38, 8:0.00, 9:0.12, 10:0.11 }, // 8: was
+            { 0:0.02, 1:0.08, 2:0.03, 3:0.03, 4:0.02, 5:0.03, 6:0.05, 7:0.28, 8:0.10, 9:0.00, 10:0.36 }, // 9: too
+            { 0:0.03, 1:0.22, 2:0.05, 3:0.05, 4:0.03, 5:0.05, 6:0.08, 7:0.35, 8:0.08, 9:0.06, 10:0.00 }, // 10: tired
+        ];
+
+        // Word descriptions for K/V vector display (top attended word context)
+        const wordDescriptions = [
+            { k: 'article',   v: 'Meaning: Definite article' },   // The
+            { k: 'creature',  v: 'Meaning: Living, beast' },       // animal
+            { k: 'negation',  v: 'Meaning: Negative action' },     // didn\'t
+            { k: 'movement',  v: 'Meaning: Move across' },         // cross
+            { k: 'article',   v: 'Meaning: Definite article' },    // the
+            { k: 'road/path', v: 'Meaning: Road, path' },          // street
+            { k: 'causal',    v: 'Meaning: Causal connector' },    // because
+            { k: 'pronoun',   v: 'Meaning: 3rd person pronoun' },  // it
+            { k: 'state',     v: 'Meaning: State of being' },      // was
+            { k: 'degree',    v: 'Meaning: Degree modifier' },     // too
+            { k: 'fatigue',   v: 'Meaning: Fatigued, exhausted' }, // tired
+        ];
 
         let tokenElements = [];
+        let selectedIndex = -1;
+        let isLocked = false; // true when user has clicked to lock a token
 
         // Initialize Tokens
         sentence.forEach((word, index) => {
@@ -426,17 +448,36 @@
             else tip.textContent = "Key Candidate";
             span.appendChild(tip);
 
-            span.addEventListener('mouseenter', () => handleHover(index));
-            span.addEventListener('mouseleave', () => clearVisualization());
+            // Hover: show attention scores on mouseenter
+            span.addEventListener('mouseenter', () => {
+                if (!isLocked) {
+                    showAttention(index);
+                }
+            });
+
+            // Hover: reset to default (focusIndex) on mouseleave
+            span.addEventListener('mouseleave', () => {
+                if (!isLocked) {
+                    clearVisualization(false);
+                    showAttention(focusIndex);
+                }
+            });
+
+            // Click: lock/unlock selection
+            span.addEventListener('click', () => handleClick(index));
             
             tokensContainer.appendChild(span);
             tokenElements.push(span);
         });
 
+        // Canvas extends 80px above the container to give arcs room to arc freely
+        const CANVAS_TOP_OFFSET = 80;
+
         // Setup Canvas
         function resize() {
             canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            canvas.height = container.clientHeight + CANVAS_TOP_OFFSET;
+            canvas.style.height = (container.clientHeight + CANVAS_TOP_OFFSET) + 'px';
         }
         window.addEventListener('resize', resize);
         resize();
@@ -527,56 +568,69 @@
             }
         }
 
-        // Interaction Logic
-        function handleHover(idx) {
-            // Only interactive for "it" to match the specific teaching example
-            // But we can allow others with dummy data for feel
-            
-            clearVisualization();
+        // ── Core: show attention for a given token index ──
+        function showAttention(idx) {
+            selectedIndex = idx;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Reset all token styles first
+            tokenElements.forEach(el => {
+                el.className = 'token';
+                el.style.backgroundColor = '';
+                el.style.borderColor = '';
+                el.style.color = '';
+            });
+
             const activeToken = tokenElements[idx];
             activeToken.classList.add('active-source');
 
-            // Set Q Vector Text
-            document.getElementById('q-vector').innerHTML = `Vector_Q("${sentence[idx]}") = [${Math.random().toFixed(2)}, ${Math.random().toFixed(2)}, ...]`;
+            // Set Q Vector Text with deterministic-looking values
+            const r1 = ((idx * 0.37 + 0.1) % 1).toFixed(2);
+            const r2 = ((idx * 0.53 - 0.2 + 1) % 1).toFixed(2);
+            document.getElementById('q-vector').innerHTML =
+                `Vector_Q("${sentence[idx]}") = [${r1}, ${r2}, ...]`;
 
-            // Draw Lines
+            // Get predefined weights for this token
+            const weights = allAttentionWeights[idx];
+
+            // Draw Lines & highlight targets
             tokenElements.forEach((target, targetIdx) => {
                 if (idx === targetIdx) return;
-
-                let weight = 0;
-                
-                // If hovering "it", use specific teaching weights
-                if (idx === focusIndex) {
-                    weight = attentionWeights[targetIdx] || 0.01;
-                } else {
-                    // Random dummy weights for other words just for visual feedback
-                    weight = Math.random() * 0.3;
-                    if (Math.abs(idx - targetIdx) < 3) weight += 0.3; // Local context bias
-                }
-
+                const weight = weights[targetIdx] || 0.01;
                 if (weight > 0.05) {
                     drawConnection(activeToken, target, weight);
-                    
-                    // Highlight target based on weight
-                    target.style.backgroundColor = `rgba(16, 185, 129, ${weight * 0.8})`; // Green tint
-                    target.style.borderColor = `rgba(16, 185, 129, ${weight})`;
-                    
+                    target.style.backgroundColor = `rgba(16, 185, 129, ${Math.min(weight * 0.9, 0.85)})`;
+                    target.style.borderColor      = `rgba(16, 185, 129, ${Math.min(weight, 1)})`;
                     if (weight > 0.5) target.style.color = 'white';
                 }
             });
 
-            // Update Side Panel if "it"
-            if (idx === focusIndex) {
-                updateSidePanel(true);
-            } else {
-                updateSidePanel(false);
-            }
+            // Update Side Panel with dynamic scores for this token
+            updateSidePanel(idx, weights);
 
-            // Sync heatmap row highlight with hovered token
+            // Sync heatmap row highlight with hovered/clicked token
             updateHeatmapHighlight(idx);
         }
 
-        function clearVisualization() {
+        // ── Click: lock / unlock a token selection ──
+        function handleClick(idx) {
+            if (isLocked && selectedIndex === idx) {
+                // Unlock: clicking the same locked token deselects it
+                isLocked = false;
+                selectedIndex = -1;
+                clearVisualization(true);
+                return;
+            }
+            // Lock onto this token
+            isLocked = true;
+            showAttention(idx);
+        }
+
+        function clearVisualization(resetSelected = true) {
+            if (resetSelected) {
+                selectedIndex = -1;
+                isLocked = false;
+            }
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             tokenElements.forEach(el => {
                 el.className = 'token';
@@ -584,7 +638,7 @@
                 el.style.borderColor = '';
                 el.style.color = '';
             });
-            updateHeatmapHighlight(focusIndex); // reset highlight to "it" row
+            if (resetSelected) updateHeatmapHighlight(focusIndex); // reset to "it" row
         }
 
         function drawConnection(sourceEl, targetEl, weight) {
@@ -593,15 +647,15 @@
             const targetRect = targetEl.getBoundingClientRect();
 
             const sx = sourceRect.left + sourceRect.width / 2 - containerRect.left;
-            const sy = sourceRect.top - containerRect.top;
+            // Offset y by CANVAS_TOP_OFFSET because canvas starts 80px above the container
+            const sy = sourceRect.top - containerRect.top + CANVAS_TOP_OFFSET;
             const tx = targetRect.left + targetRect.width / 2 - containerRect.left;
-            const ty = targetRect.top - containerRect.top;
+            const ty = targetRect.top - containerRect.top + CANVAS_TOP_OFFSET;
 
             ctx.beginPath();
             ctx.moveTo(sx, sy);
             
-            // Bezier Control Points
-            // Higher arc for further distance — capped so arcs stay within top padding (75px)
+            // Bezier Control Points — arc height scales with distance, capped at 65px
             const dist = Math.abs(sx - tx);
             const arcHeight = Math.min(30 + dist * 0.15, 65);
             
@@ -617,22 +671,53 @@
             ctx.globalAlpha = 1;
         }
 
-        function updateSidePanel(isFocus) {
-            // If "it" is selected, show the specific data
+        function updateSidePanel(idx, weights) {
             const bars = document.getElementById('score-bars');
-            if (isFocus) {
-                bars.style.opacity = '1';
-                document.getElementById('k-vector').innerHTML = `Vector_K("animal") = [0.89, 0.12, ...] (Match!)`;
-                document.getElementById('v-vector').innerHTML = `Vector_V("animal") = [Meaning: Living, beast]`;
-            } else {
-                bars.style.opacity = '0.3';
-                document.getElementById('k-vector').innerHTML = `Vector_K = [...]`;
-                document.getElementById('v-vector').innerHTML = `Vector_V = [...]`;
-            }
+            bars.innerHTML = '';
+            bars.style.opacity = '1';
+
+            // Sort all other tokens by attention weight descending, take top 3
+            const scores = Object.entries(weights)
+                .map(([ti, w]) => ({ ti: parseInt(ti), w }))
+                .filter(({ ti }) => ti !== idx)
+                .sort((a, b) => b.w - a.w)
+                .slice(0, 3);
+
+            const colors = ['#10b981', '#3b82f6', '#f59e0b'];
+
+            scores.forEach(({ ti, w }, i) => {
+                const color = colors[i];
+                const pct   = Math.min(Math.round(w * 100), 100);
+                const item  = document.createElement('div');
+                item.className = 'score-item';
+                item.innerHTML = `
+                    <div class="score-label">
+                        <span>${sentence[idx]} → ${sentence[ti]}</span>
+                        <span style="color:${color};font-weight:700;">${w.toFixed(2)}</span>
+                    </div>
+                    <div class="progress-bg">
+                        <div class="progress-fill" style="width:0%;background-color:${color};box-shadow:0 0 8px ${color}99;"></div>
+                    </div>`;
+                bars.appendChild(item);
+                // Animate bar after paint
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        item.querySelector('.progress-fill').style.width = `${pct}%`;
+                    });
+                });
+            });
+
+            // Update K / V vector displays using top attended word
+            const topTi = scores[0] ? scores[0].ti : 0;
+            const desc  = wordDescriptions[topTi];
+            document.getElementById('k-vector').innerHTML =
+                `Vector_K("${sentence[topTi]}") = [${desc.k}] (Match!)`;
+            document.getElementById('v-vector').innerHTML =
+                `Vector_V("${sentence[topTi]}") = [${desc.v}]`;
         }
 
-        // Trigger initial animation for "it"
-        setTimeout(() => handleHover(focusIndex), 1000);
+        // Trigger initial hover-style display of "it" to demonstrate the feature
+        setTimeout(() => showAttention(focusIndex), 1000);
 
     </script>
 </body>
