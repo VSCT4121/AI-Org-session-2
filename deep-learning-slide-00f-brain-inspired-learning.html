@@ -27,7 +27,7 @@
     .body { position: relative; z-index: 10; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; height: 588px; }
     .panel { background: rgba(30,41,59,.84); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 14px; }
     .left { opacity: 0; animation: fadeInLeft .7s ease-out forwards .35s; }
-    .right { opacity: 0; animation: fadeInRight .7s ease-out forwards .55s; display: flex; flex-direction: column; gap: 10px; }
+    .right { opacity: 0; animation: fadeInRight .7s ease-out forwards .55s; }
 
     #nnCanvas { width: 100%; height: 330px; display: block; background: rgba(15,23,42,.64); border-radius: 12px; border: 1px solid rgba(255,255,255,.06); }
     .layer-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
@@ -44,7 +44,7 @@
     .card h3 { margin: 0 0 6px; font-family: 'Montserrat', sans-serif; color: #f8fafc; font-size: .82rem; }
     .card p { margin: 0; color: #94a3b8; font-size: .72rem; line-height: 1.45; }
 
-    .baby-curve { height: 170px; }
+    .baby-curve { height: 136px; }
     .pill-row { margin-top: 8px; }
     .pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 8px; font-size: .62rem; font-weight: 700; margin-right: 4px; }
     .p1 { background: rgba(96,165,250,.15); color: #93c5fd; }
@@ -57,6 +57,125 @@
     }
     .deep-note h3 { color: #60a5fa; }
     .deep-note p { color: #e2e8f0; }
+
+    .baby-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.07);
+      background:
+        radial-gradient(120% 100% at 10% 10%, rgba(59,130,246,.12), transparent 55%),
+        radial-gradient(110% 90% at 90% 90%, rgba(45,212,191,.1), transparent 58%),
+        rgba(15,23,42,.76);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .baby-title {
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      font-size: .88rem;
+      color: #f8fafc;
+    }
+
+    .baby-sub {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: .72rem;
+      line-height: 1.45;
+    }
+
+    .growth-scene {
+      flex: 1;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.18);
+      background: linear-gradient(180deg, rgba(15,23,42,.72), rgba(2,6,23,.8));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sensory {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      opacity: 0;
+      filter: blur(.3px);
+      animation: sensoryFlow 6s linear infinite;
+    }
+    .sA { background: #60a5fa; top: 38%; left: 2%; animation-delay: .4s; }
+    .sB { background: #a855f7; top: 56%; left: 4%; animation-delay: 1.6s; }
+    .sC { background: #2dd4bf; top: 30%; left: 6%; animation-delay: 2.8s; }
+
+    .growth-ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 24px;
+      height: 2px;
+      background: linear-gradient(to right, rgba(96,165,250,.1), rgba(45,212,191,.3), rgba(96,165,250,.1));
+    }
+
+    .baby-stage {
+      position: absolute;
+      bottom: 26px;
+      width: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .st1 { left: 52px; animation: stagePulse 4.8s ease-in-out infinite; }
+    .st2 { left: 190px; animation: stagePulse 4.8s ease-in-out infinite 1.2s; }
+    .st3 { left: 328px; animation: stagePulse 4.8s ease-in-out infinite 2.4s; }
+
+    .stage-label {
+      color: #94a3b8;
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+    }
+
+    .silhouette {
+      width: 94px;
+      height: 132px;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,.35));
+    }
+
+    .learning-tags {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .lt {
+      border-radius: 9px;
+      border: 1px solid rgba(148,163,184,.22);
+      background: rgba(15,23,42,.78);
+      color: #cbd5e1;
+      font-size: .64rem;
+      padding: 7px 8px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .learning-tags .lt i { margin-right: 4px; color: #5eead4; }
+
+    @keyframes sensoryFlow {
+      0% { transform: translate(0, 0) scale(.7); opacity: 0; }
+      15% { opacity: .95; }
+      55% { transform: translate(220px, -24px) scale(1); opacity: .85; }
+      85% { transform: translate(360px, 4px) scale(.9); opacity: .35; }
+      100% { transform: translate(420px, -8px) scale(.7); opacity: 0; }
+    }
+
+    @keyframes stagePulse {
+      0%, 100% { transform: translateY(0); opacity: .78; }
+      50% { transform: translateY(-4px); opacity: 1; }
+    }
 
     @keyframes fadeInDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
@@ -94,27 +213,89 @@
       </div>
 
       <div class="panel right">
-        <div class="card">
-          <h3>How a Baby Learns</h3>
-          <p>From repeated exposure to shapes, sounds, and context, recognition improves over time — similar to deep models trained on large datasets.</p>
-          <svg class="baby-curve" width="100%" viewBox="0 0 420 170" preserveAspectRatio="none">
-            <line x1="32" y1="138" x2="390" y2="138" stroke="#334155" stroke-width="2"/>
-            <line x1="32" y1="138" x2="32" y2="18" stroke="#334155" stroke-width="2"/>
-            <polyline points="32,130 82,122 132,108 182,86 232,66 282,44 332,30 382,24" fill="none" stroke="#2dd4bf" stroke-width="4"/>
-            <circle cx="382" cy="24" r="4" fill="#2dd4bf"/>
-            <text x="36" y="16" fill="#64748b" font-size="10">Pattern Recognition</text>
-            <text x="318" y="157" fill="#64748b" font-size="10">Experience</text>
+        <div class="baby-card">
+          <h3 class="baby-title">How a Baby Learns in the Real World</h3>
+          <p class="baby-sub">Repeated visual, audio, and contextual exposure builds stronger internal representations over time — just like deep networks improve with more experience.</p>
+
+          <div class="growth-scene">
+            <div class="sensory sA"></div>
+            <div class="sensory sB"></div>
+            <div class="sensory sC"></div>
+
+            <div class="baby-stage st1">
+              <svg class="silhouette" viewBox="0 0 94 132" aria-label="Infant silhouette">
+                <defs>
+                  <linearGradient id="sg1" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#475569"/>
+                    <stop offset="100%" stop-color="#1e293b"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="47" cy="122" rx="30" ry="6" fill="rgba(2,6,23,.55)"/>
+                <circle cx="45" cy="24" r="12" fill="url(#sg1)"/>
+                <path d="M27 44 C26 56, 31 66, 38 70 L54 70 C62 66, 64 54, 60 44 Z" fill="url(#sg1)"/>
+                <path d="M38 70 L31 92 C35 96, 39 96, 43 92 L47 74 Z" fill="#334155"/>
+                <path d="M52 70 L49 90 C53 95, 58 95, 62 90 L60 72 Z" fill="#334155"/>
+                <path d="M29 50 L18 66 C20 70, 24 71, 27 67 L35 58 Z" fill="#334155"/>
+                <path d="M59 52 L71 62 C74 61, 76 58, 74 54 L64 46 Z" fill="#334155"/>
+              </svg>
+              <div class="stage-label">0–8 Months</div>
+            </div>
+
+            <div class="baby-stage st2">
+              <svg class="silhouette" viewBox="0 0 94 132" aria-label="Toddler silhouette">
+                <defs>
+                  <linearGradient id="sg2" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#64748b"/>
+                    <stop offset="100%" stop-color="#334155"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="47" cy="122" rx="30" ry="6" fill="rgba(2,6,23,.55)"/>
+                <circle cx="47" cy="20" r="11" fill="url(#sg2)"/>
+                <path d="M35 34 C32 46, 34 62, 39 72 H56 C61 62, 62 46, 59 34 Z" fill="url(#sg2)"/>
+                <path d="M40 72 L35 99 C39 103, 44 102, 47 97 L49 76 Z" fill="#475569"/>
+                <path d="M54 72 L56 100 C61 103, 66 101, 67 95 L63 75 Z" fill="#475569"/>
+                <path d="M35 45 L24 61 C26 64, 31 64, 33 60 L42 50 Z" fill="#475569"/>
+                <path d="M59 45 L70 52 C73 50, 74 47, 72 44 L63 40 Z" fill="#475569"/>
+              </svg>
+              <div class="stage-label">8–20 Months</div>
+            </div>
+
+            <div class="baby-stage st3">
+              <svg class="silhouette" viewBox="0 0 94 132" aria-label="Young child silhouette">
+                <defs>
+                  <linearGradient id="sg3" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0%" stop-color="#94a3b8"/>
+                    <stop offset="100%" stop-color="#475569"/>
+                  </linearGradient>
+                </defs>
+                <ellipse cx="47" cy="122" rx="30" ry="6" fill="rgba(2,6,23,.55)"/>
+                <circle cx="48" cy="17" r="10" fill="url(#sg3)"/>
+                <path d="M38 29 C34 43, 35 62, 40 76 H57 C61 61, 62 43, 57 29 Z" fill="url(#sg3)"/>
+                <path d="M42 76 L37 112 C41 116, 46 116, 49 110 L51 78 Z" fill="#64748b"/>
+                <path d="M55 76 L58 112 C63 116, 68 114, 69 108 L63 78 Z" fill="#64748b"/>
+                <path d="M39 41 L26 61 C28 64, 32 65, 35 61 L45 48 Z" fill="#64748b"/>
+                <path d="M57 40 L70 33 C73 35, 74 39, 71 42 L60 45 Z" fill="#64748b"/>
+              </svg>
+              <div class="stage-label">2–3 Years</div>
+            </div>
+
+            <div class="growth-ground"></div>
+          </div>
+
+          <svg class="baby-curve" width="100%" viewBox="0 0 420 136" preserveAspectRatio="none" aria-label="Learning progression curve">
+            <line x1="28" y1="108" x2="392" y2="108" stroke="#334155" stroke-width="2"/>
+            <line x1="28" y1="108" x2="28" y2="16" stroke="#334155" stroke-width="2"/>
+            <polyline points="28,100 82,94 132,82 182,66 232,50 282,36 332,26 382,20" fill="none" stroke="#2dd4bf" stroke-width="4"/>
+            <circle cx="382" cy="20" r="4" fill="#2dd4bf"/>
+            <text x="32" y="13" fill="#64748b" font-size="9">Recognition Quality</text>
+            <text x="300" y="126" fill="#64748b" font-size="9">Repeated Experience</text>
           </svg>
-        </div>
 
-        <div class="card deep-note">
-          <h3>What “Deep” Means</h3>
-          <p>The term <strong>deep</strong> refers to multiple layers between input and output. More layers let the system learn increasingly complex and abstract patterns from raw data.</p>
-        </div>
-
-        <div class="card">
-          <h3>Why this changed everything</h3>
-          <p>Instead of hand-coding every feature, networks learn what matters directly from data. This shift unlocks vision, language, and speech breakthroughs.</p>
+          <div class="learning-tags">
+            <div class="lt"><i class="fas fa-eye"></i>Visual Cues</div>
+            <div class="lt"><i class="fas fa-volume-up"></i>Audio Patterns</div>
+            <div class="lt"><i class="fas fa-link"></i>Context Building</div>
+          </div>
         </div>
       </div>
     </div>
