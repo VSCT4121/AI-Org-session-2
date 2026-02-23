@@ -1,6 +1,7 @@
-# Task: Insert Understanding Tokens Slide
+# Live Demo Slide Task
 
 ## Steps
 
-- [x] Edit `index.html` — move `deep-learning-slide-11-understanding-tokens.html` from after `deep-learning-slide-10-training-process.html` to between `deep-learning-slide-05-natural-language-processing-overview.html` and `deep-learning-slide-06-nlp-processing-pipeline.html`
-- [x] Edit `deep-learning-slide-11-understanding-tokens.html` — update subtitle from "The fundamental units of Large Language Model processing" to "How text is broken down for Natural Language Processing"
+- [x] Create `deep-learning-slide-20b-live-demo.html` with live demo link
+- [x] Update `index.html` to insert the new slide before the Thank You slide
+- [x] Verify slide renders correctly in browser
