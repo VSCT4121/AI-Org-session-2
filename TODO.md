@@ -23,3 +23,10 @@
 - [x] Enhanced main neural network (pulsing nodes, signal particles, glow effects)
 - [x] Click-to-replay on each card
 - [x] Files complete: deep-learning-slide-00b-brain-inspired-dl.html + brain-dl-anim.js
+
+## Phase 2 ML Visualization Fix (Layman-friendly)
+- [x] Replaced technical scatter plot with intuitive 4-scene story:
+  - Scene 1: 6 labeled email examples appear (SPAM/HAM with icons)
+  - Scene 2: Brain icon with growing connections + training progress bar
+  - Scene 3: New unlabeled email arrives → model predicts → "SPAM" revealed
+  - Scene 4: "Pattern Learned!" success flash
