@@ -363,6 +363,8 @@
 </style>
 
 <style id="light-version-overrides">
+  :root { color-scheme: light; }
+
   body { background: #f4f8ff !important; color: #0f172a !important; }
   .slide-container {
     background:
@@ -378,6 +380,15 @@
   .bg-grid, .mesh-overlay, .bg-dots { opacity: .45 !important; }
   .shape, .glow { opacity: .18 !important; filter: blur(80px) !important; }
 
+  [style*="background:#0f172a"],
+  [style*="background: #0f172a"],
+  [style*="background-color:#0f172a"],
+  [style*="background-color: #0f172a"],
+  .bg-slate-900,
+  .bg-slate-800 {
+    background: rgba(255,255,255,.92) !important;
+  }
+
   header, h1, h2, h3, h4, .title, .world-title, .comparison-title, .layer-title {
     color: #1d4ed8 !important;
     text-shadow: none !important;
@@ -387,6 +398,25 @@
   .points li, .verdict, .conclusion, .node, .tag, .info-panel, .score, .legend {
     color: #334155 !important;
   }
+
+  .text-white,
+  .text-slate-100,
+  .text-slate-200,
+  .text-slate-300,
+  [style*="color:white"],
+  [style*="color: white"],
+  [style*="color:#fff"],
+  [style*="color: #fff"],
+  [style*="color:#f8fafc"],
+  [style*="color: #f8fafc"] {
+    color: #0f172a !important;
+  }
+
+  .text-blue-400, .text-blue-300 { color: #2563eb !important; }
+  .text-purple-400, .text-purple-300 { color: #7c3aed !important; }
+  .text-teal-400, .text-teal-300 { color: #0f766e !important; }
+
+  * { text-shadow: none !important; }
 
   .panel, .card, .task-card, .baby-card, .learning-world, .comparison, .comp-card,
   .source, .growth-track, .feedback-note, .badge, .live-chip, .learning-state,
@@ -398,6 +428,10 @@
 
   .icon-box, .cicon {
     background: rgba(59,130,246,.12) !important;
+  }
+
+  .logo-overlay img {
+    filter: drop-shadow(0 0 4px rgba(15,23,42,.12)) !important;
   }
 
   .dot, .feature-icon, i {
