@@ -324,7 +324,7 @@
       document.body.classList.add('present-mode');
     }
 
-    applyTheme(currentTheme);
+    document.body.setAttribute('data-theme', currentTheme);
 
     function parseInitialIndex() {
       const hash = window.location.hash.replace('#', '');
@@ -334,6 +334,8 @@
     }
 
     let current = parseInitialIndex();
+
+    applyTheme(currentTheme);
 
     function fitStage() {
       const slideWidth = 1280;
