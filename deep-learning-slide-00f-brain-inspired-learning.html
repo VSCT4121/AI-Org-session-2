@@ -260,8 +260,6 @@
     .baby-zone.active-see .baby-head { transform: rotate(-7deg); }
     .baby-zone.active-see .eye.left-eye { transform: translateX(3px) translateY(.4px); }
     .baby-zone.active-see .eye.right-eye { transform: translateX(3.2px) translateY(.4px); }
-    .baby-zone.active-see .vision-left,
-    .baby-zone.active-see .vision-right { opacity: .95; }
 
     .baby-zone.active-touch .baby-arm-right { transform: rotate(-20deg) translate(2px, -2px); }
     .baby-zone.active-touch .baby-arm-left { transform: rotate(12deg) translate(1px, -1px); }
@@ -316,20 +314,6 @@
     .wave-right-1 { right: 116px; top: 102px; }
     .wave-right-2 { right: 108px; top: 96px; animation-delay: .22s; }
 
-    .vision-line {
-      position: absolute;
-      width: 126px;
-      height: 2.5px;
-      background: linear-gradient(to right, rgba(96,165,250,.05), rgba(96,165,250,.95), rgba(96,165,250,.12));
-      opacity: 0;
-      z-index: 4;
-      transition: opacity .2s ease;
-      transform-origin: left center;
-      animation: visionPulse 1.1s ease-in-out infinite;
-      pointer-events: none;
-    }
-    .vision-left { top: 109px; left: 164px; transform: rotate(-11deg); }
-    .vision-right { top: 119px; left: 168px; transform: rotate(13deg); }
 
     .toy-ball {
       position: absolute;
@@ -552,10 +536,6 @@
       50% { transform: scale(1.03); }
     }
 
-    @keyframes visionPulse {
-      0%, 100% { opacity: .2; }
-      50% { opacity: 1; }
-    }
 
     @keyframes targetPulse {
       0% { transform: scale(.68); opacity: .95; }
@@ -726,8 +706,6 @@
             <div class="sound-wave wave-left-2"></div>
             <div class="sound-wave wave-right-1"></div>
             <div class="sound-wave wave-right-2"></div>
-            <div class="vision-line vision-left"></div>
-            <div class="vision-line vision-right"></div>
             <div class="touch-spark"></div>
             <div id="learningState" class="learning-state">Listening to repeated words and matching sounds to faces</div>
             <div class="growth-track">
