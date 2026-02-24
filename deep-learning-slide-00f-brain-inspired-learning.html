@@ -106,8 +106,9 @@
       top: 116px;
       width: 86px;
       z-index: 2;
-      opacity: .92;
+      opacity: 0;
       animation: floatUp 3.8s ease-in-out infinite;
+      transition: opacity .25s ease;
     }
 
     .teach-bubble {
@@ -162,7 +163,29 @@
 
     .learning-scene.phase-teach .teach-bubble,
     .learning-scene.phase-teach .teaching-link { opacity: 1; transform: translateY(0) scale(1); }
+    .learning-scene.phase-teach .caregiver { opacity: .92; }
     .learning-scene.phase-teach .caregiver-arm { animation: teachHand 1s ease-in-out infinite; }
+
+    .audio-stream {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(125,211,252,.95), rgba(125,211,252,.35));
+      opacity: 0;
+      z-index: 5;
+      filter: blur(.2px);
+      pointer-events: none;
+    }
+    .as1 { left: 224px; top: 80px; }
+    .as2 { left: 224px; top: 92px; animation-delay: .2s; }
+    .as3 { left: 224px; top: 104px; animation-delay: .4s; }
+    .as4 { left: 224px; top: 116px; animation-delay: .6s; }
+
+    .learning-scene.phase-hear .audio-stream {
+      opacity: 1;
+      animation: audioToEar 1.15s linear infinite;
+    }
 
     .baby-zone {
       position: absolute;
@@ -228,8 +251,6 @@
     .baby-zone.active-see .eye.right-eye { transform: translateX(3.2px) translateY(.4px); }
     .baby-zone.active-see .vision-left,
     .baby-zone.active-see .vision-right { opacity: .95; }
-    .baby-zone.active-see ~ .object-learning,
-    .baby-zone.active-touch ~ .object-learning { opacity: 1; transform: translateY(0); }
 
     .baby-zone.active-touch .baby-arm-right { transform: rotate(-20deg) translate(2px, -2px); }
     .baby-zone.active-touch .baby-arm-left { transform: rotate(12deg) translate(1px, -1px); }
@@ -350,72 +371,6 @@
       transition: all .25s ease;
     }
 
-    .object-learning {
-      position: absolute;
-      right: 82px;
-      bottom: 82px;
-      width: 202px;
-      border-radius: 10px;
-      border: 1px solid rgba(167,139,250,.35);
-      background: rgba(15,23,42,.85);
-      padding: 8px;
-      z-index: 6;
-      opacity: .15;
-      transform: translateY(4px);
-      transition: opacity .25s ease, transform .25s ease;
-    }
-
-    .ol-title {
-      margin: 0 0 6px;
-      font-size: .58rem;
-      color: #ddd6fe;
-      text-transform: uppercase;
-      font-weight: 800;
-      letter-spacing: .4px;
-    }
-
-    .ol-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 5px;
-      font-size: .58rem;
-      color: #cbd5e1;
-      font-weight: 700;
-    }
-
-    .ol-tag {
-      border-radius: 999px;
-      background: rgba(167,139,250,.18);
-      border: 1px solid rgba(167,139,250,.3);
-      color: #ddd6fe;
-      font-size: .54rem;
-      padding: 2px 6px;
-      font-weight: 800;
-    }
-
-    .ol-bar {
-      height: 7px;
-      border-radius: 999px;
-      background: rgba(51,65,85,.95);
-      overflow: hidden;
-      border: 1px solid rgba(148,163,184,.25);
-    }
-
-    .ol-fill {
-      width: 0%;
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(to right, #a78bfa, #2dd4bf);
-      transition: width .45s ease;
-    }
-
-    .ol-note {
-      margin: 5px 0 0;
-      color: #93c5fd;
-      font-size: .55rem;
-      font-weight: 700;
-    }
 
     .learning-state {
       border-radius: 999px;
@@ -608,6 +563,13 @@
       100% { transform: scale(1.5); opacity: 0; }
     }
 
+    @keyframes audioToEar {
+      0% { transform: translate(0, 0) scale(.65); opacity: 0; }
+      15% { opacity: .95; }
+      70% { transform: translate(248px, 18px) scale(1); opacity: .8; }
+      100% { transform: translate(286px, 26px) scale(.7); opacity: 0; }
+    }
+
     @keyframes legCrawlFront {
       0%,100% { transform: rotate(2deg) translateY(0); }
       50% { transform: rotate(-16deg) translate(-2px, 2px); }
@@ -701,6 +663,11 @@
           <div class="teach-bubble"><i class="fas fa-comment-dots"></i> This is a ball, can you say “ball”?</div>
           <div class="teaching-link"></div>
 
+          <div class="audio-stream as1"></div>
+          <div class="audio-stream as2"></div>
+          <div class="audio-stream as3"></div>
+          <div class="audio-stream as4"></div>
+
           <div class="baby-zone">
             <div class="brain-ring"></div>
             <svg id="babySvg" class="baby-svg" viewBox="0 0 120 150" aria-label="Baby illustration">
@@ -748,19 +715,6 @@
           </div>
 
           <div class="toy-ball" aria-label="Toy ball"></div>
-          <div class="object-learning">
-            <p class="ol-title">Seeing Object → Learning Concept</p>
-            <div class="ol-row">
-              <span>Object in view:</span>
-              <span class="ol-tag" id="objectName">Ball</span>
-            </div>
-            <div class="ol-row">
-              <span>Concept confidence:</span>
-              <span id="objectPct">0%</span>
-            </div>
-            <div class="ol-bar"><div id="objectFill" class="ol-fill"></div></div>
-            <p id="objectNote" class="ol-note">Looks at shape + motion + color repeatedly</p>
-          </div>
 
           <div class="feedback-note"><i class="fas fa-sync-alt"></i> Action → Feedback → Adjustment (continuous loop)</div>
         </div>
@@ -804,14 +758,10 @@
     const growthLabel = document.getElementById('growthLabel');
     const growthPercent = document.getElementById('growthPercent');
     const growthFill = document.getElementById('growthFill');
-    const objectFill = document.getElementById('objectFill');
-    const objectPct = document.getElementById('objectPct');
-    const objectNote = document.getElementById('objectNote');
     const ctx = canvas.getContext('2d');
 
     const states = [
       { text: 'Audio input: baby hears words through ears and stores sound patterns', modes: ['active-hear'], source: '.src-audio', phase: 'phase-hear' },
-      { text: 'Experience input: baby crawls and explores movement in the environment', modes: ['active-crawl'], source: '.src-experience', phase: 'phase-crawl' },
       { text: 'Visual input: baby sees object through eyes and tracks it repeatedly', modes: ['active-see'], source: '.src-visual', phase: 'phase-see' },
       { text: 'Experience input: baby touches object with hands and learns feedback', modes: ['active-touch'], source: '.src-experience', phase: 'phase-touch' },
       { text: 'Teaching input: elder guides baby with words and demonstration', modes: ['active-teach', 'active-grow'], source: '.src-teaching', phase: 'phase-teach' }
@@ -822,7 +772,7 @@
     let stateIndex = 0;
     let cycleCount = 0;
     const allModes = ['active-crawl', 'active-hear', 'active-see', 'active-touch', 'active-grow', 'active-teach'];
-    const scenePhases = ['phase-hear', 'phase-crawl', 'phase-see', 'phase-touch', 'phase-teach'];
+    const scenePhases = ['phase-hear', 'phase-see', 'phase-touch', 'phase-teach'];
 
     function updateGrowthVisuals() {
       const growthValue = Math.min(100, cycleCount * 4);
@@ -843,18 +793,6 @@
       const height = 194 + (growthValue * 0.42);
       babySvg.style.width = `${width}px`;
       babySvg.style.height = `${height}px`;
-
-      const objectConfidence = Math.min(100, Math.round(growthValue * 0.92));
-      objectFill.style.width = `${objectConfidence}%`;
-      objectPct.textContent = `${objectConfidence}%`;
-
-      if (objectConfidence < 35) {
-        objectNote.textContent = 'Looks at shape + motion + color repeatedly';
-      } else if (objectConfidence < 70) {
-        objectNote.textContent = 'Links visual pattern with spoken label: “ball”';
-      } else {
-        objectNote.textContent = 'Recognizes object quickly even from new angles';
-      }
     }
 
     function applyState(index) {
